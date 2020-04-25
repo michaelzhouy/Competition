@@ -18,7 +18,7 @@
 
    `corrmat.nlargest(10, 'y') # 取与'y'相关系数最大的10行`
 
-   ``corrmat.nlargest(10, 'y')['y'].index`
+   `corrmat.nlargest(10, 'y')['y'].index`
 
    `k = 10 # number of variables for heatmap`
 
