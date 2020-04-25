@@ -6,5 +6,7 @@
 
    `df['col1'] = df.groupby(['col2', 'col3'])['col1'].transform(lambda x: x.fillna(x.median()))`
 
-3. 
+3. 用每列的众数填充每列的缺失值
+
+   `df = df.fillna(df.mode().iloc[0, :])`
 
