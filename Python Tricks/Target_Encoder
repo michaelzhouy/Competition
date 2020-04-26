@@ -1,0 +1,34 @@
+# target encoding目标编码，回归场景相对来说做目标编码的选择更多，不仅可以做均值编码，还可以做标准差编码、中位数编码等
+enc_cols = []
+stats_default_dict = {
+    'max': X_data['price'].max(),
+    'min': X_data['price'].min(),
+    'median': X_data['price'].median(),
+    'mean': X_data['price'].mean(),
+    'sum': X_data['price'].sum(),
+    'std': X_data['price'].std(),
+    'skew': X_data['price'].skew(), # 偏度
+    'kurt': X_data['price'].kurt(), # 峰度
+    'mad': X_data['price'].mad() # mean absolute deviation 平均绝对偏差
+}
+
+# 暂且选择这三种编码
+enc_stats = ['max', 'min', 'mean']
+skf = KFold(n_splits=5, shuffle=True, random_state=42)
+for f in tqdm(['regionCode', 'brand', 'regDate_year' ,'creatDate_year', 'kilometer', 'model']):
+    enc_dict = {}
+    for stat in enc_stats:
+        enc_dict['{}_target_{}'.format(f, stat)] = stat
+        X_data['{}_target_{}'.format(f, stat)] = 0
+        X_test['{}_target_{}'.format(f, stat)] = 0
+        enc_cols.append('{}_target_{}'.format(f, stat))
+    for i, (trn_idx, val_idx) in enumerate(skf.split(X_data, Y_data)):
+        trn_x, val_x = X_data.iloc[trn_idx].reset_index(drop=True), X_data.iloc[val_idx].reset_index(drop=True)
+        enc_df = trn_x.groupby(f, as_index=False)['price'].agg(enc_dict)
+        val_x = val_x[[f]].merge(enc_df, on=f, how='left')
+        test_x = X_test[[f]].merge(enc_df, on=f, how='left')
+        for stat in enc_stats:
+            val_x['{}_target_{}'.format(f, stat)] = val_x['{}_target_{}'.format(f, stat)].fillna(stats_default_dict[stat])
+            test_x['{}_target_{}'.format(f, stat)] = test_x['{}_target_{}'.format(f, stat)].fillna(stats_default_dict[stat])
+            X_data.loc[val_idx, '{}_target_{}'.format(f, stat)] = val_x['{}_target_{}'.format(f, stat)].values 
+            X_test['{}_target_{}'.format(f, stat)] += test_x['{}_target_{}'.format(f, stat)].values / skf.n_splits
