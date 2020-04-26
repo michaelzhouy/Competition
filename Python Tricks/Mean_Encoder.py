@@ -1,3 +1,8 @@
+"""
+Mean Encoder
+"""
+
+# 调用方法
 ME = MeanEncoder(categorical_features=cols, n_splits=5, target_type='regression', prior_weight_func=None)
 X_data = ME.fit_transform(X_data, Y_data)
 X_test = ME.transform(X_test)
@@ -124,3 +129,12 @@ class MeanEncoder:
                 X_new[nf_name] /= self.n_splits
  
         return X_new
+        
+"""
+count encoder
+"""
+
+def count_coding(df, fea_col):
+    for f in fea_col:
+        df[f + '_count'] = df[f].map(df[f].value_counts())
+    return df
