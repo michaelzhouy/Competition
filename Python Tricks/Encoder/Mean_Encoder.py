@@ -130,9 +130,11 @@ class MeanEncoder:
  
         return X_new
         
+
 """
 Count Encoder
 """
+
 
 def count_coding(df, fea_col):
     for f in fea_col:
