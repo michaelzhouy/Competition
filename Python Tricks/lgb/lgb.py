@@ -23,12 +23,18 @@ params = {'objective': 'binary',
 lgb_train = lgb.Dataset(train_x, label=train_y)
 lgb_test = lgb.Dataset(test_x, label=test_y, reference=lgb_train)
 
+# 模型训练
 lgb_model = lgb.train(params,
                       lgb_train,
                       valid_sets=lgb_test,
                       early_stopping_rounds=200,
                       verbose_eval=300)
 
+# 保存模型
+lgb_model.save_model(path)
+model = lgb.Booster(model_file=path)
+
+# 导出特征重要性
 importance = lgb_model.feature_importance(importance_type='gain')
 feature_name = lgb_model.feature_name()
 
