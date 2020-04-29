@@ -29,7 +29,7 @@ lgb_model = lgb.train(params,
                       early_stopping_rounds=200,
                       verbose_eval=300)
 
-importance = lgb_model.feature_importance()
+importance = lgb_model.feature_importance(importance_type='gain')
 feature_name = lgb_model.feature_name()
 
 feature_importance = pd.DataFrame({'feature_name': feature_name, 'importance': importance}).sort_values(by='importance', ascending=False)
