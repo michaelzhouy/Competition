@@ -1,3 +1,6 @@
+import numpy as np
+import pandas as pd
+import os
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -6,6 +9,7 @@ pd.set_option('max_rows', None)
 
 # 分组排名
 df.groupby('uid')['time'].rank('dense')
+
 
 # 读文件
 def reduce_mem_usage(df):

@@ -5,6 +5,7 @@
 import xgboost as xgb
 from sklearn.model_selection import StratifiedKFold
 
+# wrong demonstartion
 means = X_tr.groupby(col).target.mean()
 train_new[col + '_mean_target'] = train_new[col].map(means)
 val_new[col + '_mean_target'] = val_new[col].map(means)
