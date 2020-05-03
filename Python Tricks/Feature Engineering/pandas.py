@@ -74,3 +74,8 @@ pd.read_hdf('data.h5')
 # 筛选object特征
 df_object = df.select_dtypes(include=['object'])
 df_numerical = df.select_dtypes(exclude=['object'])
+
+
+name_freq = 2
+name_dict = dict(zip(*np.unique(data['name'], return_counts=True)))
+data['name'] = data['name'].apply(lambda x: -999 if name_dict[x] < name_freq else x)
