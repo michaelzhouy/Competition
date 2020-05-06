@@ -7,19 +7,19 @@ params = {'boosting_type': 'gbdt',
           'learning_rate': 0.05}
 
 params = {'objective': 'binary',
-           'boosting': 'gbdt',
-           'metric': 'auc',
-           'num_iterations': 1000000,
-           'learning_rate': 0.1,
-           'num_leaves': 31,
-           'lambda_l1': 0,
-           'lambda_l2': 1,
-           'num_threads': 23,
-           'min_data_in_leaf': 20,
-           'first_metric_only': True,
-           'is_unbalance': True,
-           'max_depth': -1,
-           'seed': 2020}
+          'boosting': 'gbdt',
+          'metric': 'auc',
+          'num_iterations': 1000000,
+          'learning_rate': 0.1,
+          'num_leaves': 31,
+          'lambda_l1': 0,
+          'lambda_l2': 1,
+          'num_threads': 23,
+          'min_data_in_leaf': 20,
+          'first_metric_only': True,
+          'is_unbalance': True,
+          'max_depth': -1,
+          'seed': 2020}
 
 lgb_train = lgb.Dataset(train_x, label=train_y)
 lgb_test = lgb.Dataset(test_x, label=test_y, reference=lgb_train)
