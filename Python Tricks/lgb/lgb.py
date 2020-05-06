@@ -1,3 +1,4 @@
+import pandas as pd
 import lightgbm as lgb
 
 params = {'boosting_type': 'gbdt',
@@ -38,5 +39,6 @@ model = lgb.Booster(model_file=path)
 importance = lgb_model.feature_importance(importance_type='gain')
 feature_name = lgb_model.feature_name()
 
-feature_importance = pd.DataFrame({'feature_name': feature_name, 'importance': importance}).sort_values(by='importance', ascending=False)
+feature_importance = pd.DataFrame({'feature_name': feature_name, 'importance': importance}).sort_values(by='importance',
+                                                                                                        ascending=False)
 feature_importance.to_csv('feature_importance.csv', index=False)
