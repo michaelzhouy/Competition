@@ -75,7 +75,12 @@ pd.read_hdf('data.h5')
 df_object = df.select_dtypes(include=['object'])
 df_numerical = df.select_dtypes(exclude=['object'])
 
-
+# 将类别较少的取值归为一类
 name_freq = 2
 name_dict = dict(zip(*np.unique(data['name'], return_counts=True)))
 data['name'] = data['name'].apply(lambda x: -999 if name_dict[x] < name_freq else x)
+
+# 根据时间划分训练集、验证集和测试集
+train = df.loc[df['observe_date'] < '2019-11-04', :]
+valid = df.loc[(df['observe_date'] >= '2019-11-04') & (df['observe_date'] <= '2019-12-04'), :]
+test = df.loc[df['observe_date'] > '2020-01-04', :]
