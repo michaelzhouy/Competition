@@ -67,7 +67,7 @@ def read_data(path):
 	return res
 
 
-# 数据存储
+# 数据存储为h5格式
 df.to_hdf('data.h5', 'df')
 pd.read_hdf('data.h5')
 
