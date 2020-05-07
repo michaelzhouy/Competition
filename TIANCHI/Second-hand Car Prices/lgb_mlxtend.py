@@ -14,7 +14,7 @@ from sklearn.model_selection import StratifiedKFold, KFold
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import lightgbm as lgb
 from sklearn.feature_selection import RFECV
-from mlxtend.feature_selection import SequentialFeatureSelector
+from mlxtend.feature_selection import SequentialFeatureSelector as SFS
 
 warnings.filterwarnings('ignore')
 pd.set_option('max_columns', None)
@@ -344,18 +344,18 @@ x_test = x_test.astype('float32')
 lgb_model = lgb.LGBMRegressor(eval_metric='mae', random_state=666)
 
 # 后向特征选择
-backward_model = SequentialFeatureSelector(lgb.LGBMRegressor(eval_metric='l1', random_state=666),
-                                           k_features=100,
-                                           forward=False,
-                                           verbose=2,
-                                           cv=5,
-                                           n_jobs=-1,
-                                           scoring='neg_mean_absolute_error')
+backward_model = SFS(lgb.LGBMRegressor(objective='regression_l1', random_state=666),
+                     k_features=100,
+                     forward=False,
+                     verbose=2,
+                     cv=5,
+                     n_jobs=-1,
+                     scoring='neg_mean_absolute_error')
 backward_model.fit(x_train, Train_data['price'])
 cols = x_train.columns[list(backward_model.k_feature_idx_)]
 print('cols: ', cols)
 
-params = {'objective': 'regression',
+params = {'objective': 'regression_l1',
           'boosting': 'gbdt',
           'metric': 'mae',
           'learning_rate': 0.1,
