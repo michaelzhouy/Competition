@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-# @Time     : 2020/5/7 20:06
+# @Time     : 2020/5/7 20:28
+# @Author   : Michael_Zhouy
+
+# -*- coding: utf-8 -*-
+# @Time     : 2020/5/7 19:00
 # @Author   : Michael_Zhouy
 
 import numpy as np
@@ -10,11 +14,12 @@ import itertools
 import warnings
 from sklearn.model_selection import StratifiedKFold, KFold
 from itertools import product
+from sklearn import preprocessing
+from sklearn.decomposition import PCA
 from sklearn.model_selection import StratifiedKFold, KFold
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import lightgbm as lgb
 from sklearn.feature_selection import RFECV
-from mlxtend.feature_selection import SequentialFeatureSelector
 
 warnings.filterwarnings('ignore')
 pd.set_option('max_columns', None)
@@ -200,9 +205,9 @@ def date_tran(df,fea_col):
 # 分桶操作
 def cut_group(df, cols, num_bins=50):
     for col in cols:
-        all_range = int(df[col].max() - df[col].min())
-        bin = [i * all_range / num_bins for i in range(all_range)]
-        df[col + '_bin'] = pd.cut(df[col], bin, labels=False)
+#         all_range = int(df[col].max() - df[col].min())
+#         bin = [i * all_range / num_bins for i in range(num_bins)]
+        df[col + '_bin'] = pd.cut(df[col], num_bins, labels=False)
     return df
 
 
@@ -341,33 +346,30 @@ print('x_train.shape: ', x_train.shape)
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
 
-lgb_model = lgb.LGBMRegressor(eval_metric='mae', random_state=666)
-
-# 后向特征选择
-backward_model = SequentialFeatureSelector(lgb.LGBMRegressor(eval_metric='l1', random_state=666),
-                                           k_features=100,
-                                           forward=False,
-                                           verbose=2,
-                                           cv=5,
-                                           n_jobs=-1,
-                                           scoring='neg_mean_absolute_error')
-backward_model.fit(x_train, Train_data['price'])
-cols = x_train.columns[list(backward_model.k_feature_idx_)]
-print('cols: ', cols)
-
 params = {'objective': 'regression',
           'boosting': 'gbdt',
           'metric': 'mae',
+          'num_iterations': 1000000,
           'learning_rate': 0.1,
           'num_leaves': 31,
+          'lambda_l1': 0,
+          'lambda_l2': 0,
+          'num_threads': 23,
+          'min_data_in_leaf': 20,
+          'max_depth': -1,
           'seed': 2020}
 
-lgb_train = lgb.Dataset(x_train[cols], label=Train_data['price'])
+lgb_train = lgb.Dataset(x_train, label=Train_data['price'])
 
-cv_results = lgb.cv(params,
-                    lgb_train,
-                    num_boost_round=100000,
-                    early_stopping_rounds=200,
-                    eval_train_metric=True)
-cv_df = pd.DataFrame(cv_results)
-print(cv_df)
+lgb_model = lgb.train(params,
+                      lgb_train,
+                      valid_sets=lgb_train,
+                      early_stopping_rounds=200,
+                      verbose_eval=300)
+# 导出特征重要性
+importance = lgb_model.feature_importance(importance_type='gain')
+feature_name = lgb_model.feature_name()
+
+feature_importance = pd.DataFrame({'feature_name': feature_name, 'importance': importance}).sort_values(by='importance',
+                                                                                                        ascending=False)
+feature_importance.to_csv('feature_importance.csv', index=False)
