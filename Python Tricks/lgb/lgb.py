@@ -2,11 +2,13 @@ import pandas as pd
 import lightgbm as lgb
 from sklearn.model_selection import KFold, StratifiedKFold
 
+# regression
 params = {'boosting_type': 'gbdt',
           'objective': 'regression',
           'metric': 'mae',
           'learning_rate': 0.05}
 
+# binary
 params = {'objective': 'binary',
           'boosting': 'gbdt',
           'metric': 'auc',
@@ -28,7 +30,7 @@ lgb_test = lgb.Dataset(test_x, label=test_y, reference=lgb_train)
 # 模型训练
 lgb_model = lgb.train(params,
                       lgb_train,
-                      valid_sets=lgb_test,
+                      valid_sets=[lgb_test, lgb_train],
                       early_stopping_rounds=200,
                       verbose_eval=300)
 
@@ -55,4 +57,4 @@ for i, (train_index, test_index) in enumerate(skf.split(train_x, train_y)):
     lgb_test = lgb.Dataset(X_test,
                            label=y_test,
                            reference=lgb_train)
-    exec("gbm{} = lgb.train(params, lgb_train, valid_sets=lgb_test, early_stopping_rounds=200, verbose_eval=100)".format(i))
+    exec('gbm{} = lgb.train(params, lgb_train, valid_sets=[lgb_test, lgb_test], early_stopping_rounds=200, verbose_eval=100)'.format(i))
