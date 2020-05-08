@@ -12,12 +12,12 @@ import time
 from tqdm import tqdm
 import itertools
 import warnings
-from sklearn.model_selection import StratifiedKFold, KFold
 from itertools import product
 from sklearn import preprocessing
 from sklearn.decomposition import PCA
 from sklearn.model_selection import StratifiedKFold, KFold
 from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.model_selection import train_test_split
 import lightgbm as lgb
 from sklearn.feature_selection import RFECV
 
@@ -346,24 +346,29 @@ print('x_train.shape: ', x_train.shape)
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
 
-params = {'objective': 'regression',
+X_train, X_test, y_train, y_test = train_test_split(x_train, X_data['price'],
+                                                    test_size=0.2,
+                                                    random_state=2020)
+
+params = {'objective': 'regression_l1',
           'boosting': 'gbdt',
           'metric': 'mae',
-          'num_iterations': 1000000,
-          'learning_rate': 0.1,
+          'num_boosting_round': 1000000,
+          'learning_rate': 0.2,
           'num_leaves': 31,
           'lambda_l1': 0,
-          'lambda_l2': 0,
+          'lambda_l2': 1,
           'num_threads': 23,
           'min_data_in_leaf': 20,
           'max_depth': -1,
           'seed': 2020}
 
-lgb_train = lgb.Dataset(x_train, label=Train_data['price'])
+lgb_train = lgb.Dataset(X_train, label=y_train)
+lgb_test = lgb.Dataset(X_test, label=y_test, reference=lgb_train)
 
 lgb_model = lgb.train(params,
                       lgb_train,
-                      valid_sets=lgb_train,
+                      valid_sets=[lgb_test, lgb_train],
                       early_stopping_rounds=200,
                       verbose_eval=300)
 # 导出特征重要性
