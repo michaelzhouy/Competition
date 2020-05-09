@@ -4,3 +4,6 @@
 *.h5
 *.iml
 *.xml
+*.json
+*.tfevents
+*.tsv
