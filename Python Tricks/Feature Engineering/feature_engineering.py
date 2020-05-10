@@ -4,7 +4,6 @@
 # Author : Zhou Yang
 
 import numpy as np
-import pandas as pd
 
 
 def overfit_reducer(df):
