@@ -1,6 +1,8 @@
+import numpy as np
 import pandas as pd
 import lightgbm as lgb
 from sklearn.model_selection import KFold, StratifiedKFold
+from sklearn.metrics import roc_curve
 
 # regression
 params = {'boosting_type': 'gbdt',
@@ -12,6 +14,7 @@ params = {'boosting_type': 'gbdt',
 params = {'objective': 'binary',
           'boosting': 'gbdt',
           'metric': 'auc',
+          # 'metric': 'None',  # 用自定义评估函数是将metric设置为'None'
           'num_iterations': 1000000,
           'learning_rate': 0.1,
           'num_leaves': 31,
@@ -23,6 +26,16 @@ params = {'objective': 'binary',
           'is_unbalance': True,
           'max_depth': -1,
           'seed': 2020}
+
+
+# 自定义评估函数
+def self_metric(preds, train_data):
+    labels = train_data.get_label()
+    fpr, tpr = roc_curve(labels, preds)
+    max_tpr = tpr[np.where(fpr < 0.001)][-1]
+
+    return 'self_metric', max_tpr, True
+
 
 lgb_train = lgb.Dataset(train_x, label=train_y)
 lgb_test = lgb.Dataset(test_x, label=test_y, reference=lgb_train)
