@@ -31,7 +31,7 @@ params = {'objective': 'binary',
 # 自定义评估函数
 def self_metric(preds, train_data):
     labels = train_data.get_label()
-    fpr, tpr = roc_curve(labels, preds)
+    fpr, tpr, _ = roc_curve(labels, preds)
     max_tpr = tpr[np.where(fpr < 0.001)][-1]
 
     return 'self_metric', max_tpr, True
