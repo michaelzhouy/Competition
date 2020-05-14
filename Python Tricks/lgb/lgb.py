@@ -3,6 +3,7 @@ import pandas as pd
 import lightgbm as lgb
 from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.metrics import roc_curve
+from sklearn.metrics import precision_recall_curve, f1_score
 
 # regression
 params = {'boosting_type': 'gbdt',
