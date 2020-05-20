@@ -4,8 +4,7 @@
 
 import numpy as np
 import lightgbm as lgb
-import hyperopt
-from hyperopt import fmin, tpe, hp, partial
+from hyperopt import fmin, tpe, hp, partial, Trials
 from sklearn.metrics import mean_squared_error
 from numpy.random import RandomState
 import warnings
@@ -104,17 +103,17 @@ def hyperopt_objective(params):
     return min(res['rmse-mean'])  # as hyperopt minimises
 
 
-params_space = {'max_depth': hyperopt.hp.randint('max_depth', 6),
-                'learning_rate': hyperopt.hp.uniform('learning_rate', 1e-3, 5e-1)}
+params_space = {'max_depth': hp.randint('max_depth', 6),
+                'learning_rate': hp.uniform('learning_rate', 1e-3, 5e-1)}
 
-trials = hyperopt.Trials()
+trials = Trials()
 
-best = hyperopt.fmin(hyperopt_objective,
-                     space=params_space,
-                     algo=hyperopt.tpe.suggest,
-                     max_evals=50,
-                     trials=trials,
-                     rstate=RandomState(123))
+best = fmin(hyperopt_objective,
+            space=params_space,
+            algo=tpe.suggest,
+            max_evals=50,
+            trials=trials,
+            rstate=RandomState(123))
 
 print('\n展示hyperopt获取的最佳结果，但是要注意的是我们对hyperopt最初的取值范围做过一次转换')
 print(best)
