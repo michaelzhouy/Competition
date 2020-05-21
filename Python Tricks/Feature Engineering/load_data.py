@@ -43,6 +43,7 @@ def reduce_mem_usage(df):
                     df[col] = df[col].astype(np.float64)
         else:
             df[col] = df[col].astype('category')
+            df[col] = df[col].astype('str')
 
     end_mem = df.memory_usage().sum()
     print('Memory usage after optimization is: {:.2f} MB'.format(end_mem))

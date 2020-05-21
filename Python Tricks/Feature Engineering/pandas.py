@@ -3,9 +3,7 @@
 # Email  : 15602409303@163.com
 # Author : Zhou Yang
 
-import numpy as np
 import pandas as pd
-import os
 
 # 过滤警告
 import warnings
