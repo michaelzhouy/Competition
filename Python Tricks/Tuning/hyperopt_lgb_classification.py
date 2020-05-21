@@ -22,12 +22,13 @@ def GBM(argsDict):
     print('learning_rate:' + str(learning_rate))
     print('subsample:' + str(subsample))
 
-    gbm = lgb.LGBMClassifier(nthread=4,
-                             max_depth=max_depth,
+    gbm = lgb.LGBMClassifier(max_depth=max_depth,
                              learning_rate=learning_rate,
                              subsample=subsample,
-                             max_delta_step=10,
-                             objective='binary')
+                             num_leaves=31,
+                             objective='binary',
+                             is_unbalance=True,
+                             seed=2020)
 
     metric = cross_val_score(gbm, X_train, y_train, cv=5, scoring='roc_auc').mean()
     print(metric)
