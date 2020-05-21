@@ -10,7 +10,7 @@ from sklearn.metrics import mean_squared_error
 import warnings
 warnings.filterwarnings("ignore")
 
-# 回归
+
 space = {'max_depth': hp.randint('max_depth', 15),
          'num_trees': hp.randint('num_trees', 300),
          'learning_rate': hp.uniform('learning_rate', 1e-3, 5e-1),
