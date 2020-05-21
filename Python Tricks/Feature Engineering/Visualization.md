@@ -8,7 +8,7 @@
 
 3. 箱型图
 
-   `sns.boxplot(x='col', y='y'), data=df`
+   `sns.boxplot(x='col', y='y', data=df)`
 
 4. 协方差矩阵的热力图
 
