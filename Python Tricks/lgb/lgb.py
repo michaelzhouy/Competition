@@ -38,6 +38,14 @@ def self_metric(preds, train_data):
     return 'self_metric', max_tpr, True
 
 
+# 自定义评估函数（特定阈值下的f1）
+def self_metric(preds, train_data):
+    labels = train_data.get_label()
+    y_preds = np.where(preds >= np.percentile(preds, 95), 1, 0)
+    f1 = f1_score(labels, y_preds)
+    return 'self_metric', f1, True
+
+
 lgb_train = lgb.Dataset(train_x, label=train_y)
 lgb_test = lgb.Dataset(test_x, label=test_y, reference=lgb_train)
 
