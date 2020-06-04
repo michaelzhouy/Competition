@@ -4,6 +4,7 @@
 # Author : Zhou Yang
 
 import numpy as np
+import pandas as pd
 
 
 def overfit_reducer(df):
@@ -19,6 +20,17 @@ def overfit_reducer(df):
         if zeros / len(df) * 100 > 99.94:
             overfit.append(i)
     return overfit
+
+
+def missing_percentage(df):
+    """
+    计算缺失值占比
+    @param df:
+    @return:
+    """
+    total = df.isnull().sum().sort_values(ascending=False)[df.isnull().sum().sort_values(ascending=False) != 0]
+    percent = round(df.isnull().sum().sort_values(ascending=False) / len(df) * 100, 2)[round(df.isnull().sum().sort_values(ascending = False) / len(df) * 100,2) != 0]
+    return pd.concat([total, percent], axis=1, keys=['Total', 'Percent'])
 
 
 # 筛选object特征
