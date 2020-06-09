@@ -6,3 +6,4 @@
 *.json
 *.tfevents
 *.tsv
+*.h5
