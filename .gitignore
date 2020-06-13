@@ -8,4 +8,4 @@
 *.tsv
 *.h5
 *.zip
-*init*
+*__init__.py
