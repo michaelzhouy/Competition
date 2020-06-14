@@ -2,6 +2,7 @@
 # @Time     : 2020/6/13 17:30
 # @Author   : Michael_Zhouy
 
+import time
 import numpy as np
 import pandas as pd
 import lightgbm as lgb
@@ -313,7 +314,7 @@ def app_process(data_app):
     """
     平均每个APP使用的流量
     """
-    data['app_use_of_flow_avg'] = data['flow'] / data['sum_of_flow']
+    data['app_use_of_flow_avg'] = data['flow'] / data['sum_of_app']
 
     """
     编码  流量用的最多的月份，用的最少的月份
@@ -327,11 +328,11 @@ def data_concat(data_app, data_sms, data_voc, data_user, train=1):
     if train:
         user = user_process(data_user, Train=1)
         data = user[['phone_no_m', 'idcard_cnt', 'avgfee', 'label']]
-        data = user[['phone_no_m', 'idcart_cnt']]
+        # data = user[['phone_no_m', 'idcart_cnt']]
     else:
         user = user_process(data_user, Train=0)
         data = user[['phone_no_m', 'idcard_cnt', 'avgfee']]
-        data = user[['phone_no_m', 'idcard_cnt']]
+        # data = user[['phone_no_m', 'idcard_cnt']]
 
 
     voc = voc_process(data_voc)
@@ -412,6 +413,8 @@ def train(data_notnull, test):
     predict = clf.predict(x_test, num_iteration=clf.best_iteration)
     predict = predict >= 0.5
     score = f1_score(predict, y_test, average='macro')
+    print('*' * 10)
+    print('score: ', score)
 
     """
     预测
@@ -420,26 +423,29 @@ def train(data_notnull, test):
     test = test.drop(['phone_no_m'], axis=1)
     predict_test = clf.predict(test, num_iteration=clf.best_iteration)
     sub['label'] = (predict_test >= 0.5).astype(int)
+    sub.to_csv('../sub/sub_{}.csv'.format(time.strftime('%Y%m%d')), index=False)
 
 
 if __name__ == '__main__':
-    data_app = pd.read_csv()
-    data_sms = pd.read_csv()
-    data_voc = pd.read_csv()
-    data_user = pd.read_csv()
+    data_app = pd.read_csv('../input/train/train_app.csv')
+    data_sms = pd.read_csv('../input/train/train_sms.csv')
+    data_voc = pd.read_csv('../input/train/train_voc.csv')
+    data_user = pd.read_csv('../input/train/train_user.csv')
 
-    test_app = pd.read_csv()
-    test_sms = pd.read_csv()
-    test_voc = pd.read_csv()
-    test_user = pd.read_csv()
+    test_app = pd.read_csv('../input/test/test_app.csv')
+    test_sms = pd.read_csv('../input/test/test_sms.csv')
+    test_voc = pd.read_csv('../input/test/test_voc.csv')
+    test_user = pd.read_csv('../input/test/test_user.csv')
 
     data = data_concat(data_app, data_sms, data_voc, data_user, train=1)
     # 参看1，生成字典，key为列名，value为列对应的均值
     values = dict([(col_name, col_mean) for col_name, col_mean in zip(data.columns.tolist(), data.mean().tolist())])
-    data.fillna(values=values, inplace=True)
+    data.fillna(value=values, inplace=True)
     data_notnull = data
 
     test = data_concat(test_app, test_sms, test_voc, test_user, train=0)
     # 参看1，生成字典，key为列名，value为列对应的均值
     values = dict([(col_name, col_mean) for col_name, col_mean in zip(test.columns.tolist(), test.mean().tolist())])
-    test.fillna(values=values, inplace=True)
+    test.fillna(value=values, inplace=True)
+
+    train(data_notnull, test)
