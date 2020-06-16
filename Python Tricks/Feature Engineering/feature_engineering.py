@@ -9,6 +9,11 @@ from tqdm import tqdm
 import gc
 
 
+# 筛选object特征
+df_object = df.select_dtypes(include=['object'])
+df_numerical = df.select_dtypes(exclude=['object'])
+
+
 def overfit_reducer(df):
     """
     计算每列中取值的分布，返回单一值占比达99.74%的列名
@@ -35,17 +40,6 @@ def missing_percentage(df):
     return pd.concat([total, percent], axis=1, keys=['Total', 'Percent'])
 
 
-# groupby
-gb = df.groupby(['user_id', 'page_id'], ax_index=False).agg(
-    {'ad_price': {'max_price': np.max, 'min_price': np.min}})
-gb.columns = ['user_id', 'page_id', 'min_price', 'max_price']
-df = pd.merge(df, gb, on=['user_id', 'page_id'], how='left')
-
-
-# 筛选object特征
-df_object = df.select_dtypes(include=['object'])
-df_numerical = df.select_dtypes(exclude=['object'])
-
 # 将类别较少的取值归为一类
 name_freq = 2
 name_dict = dict(zip(*np.unique(df['name'], return_counts=True)))
@@ -68,7 +62,7 @@ def count_encode(df, cols=[]):
         df[col + '_count'] = df[col].map(vc).astype('float32')
 
 
-# LABEL ENCODE
+# label encode
 def label_encode(df, cols, verbose=True):
     for col in cols:
         df[col], _ = df[col].factorize(sort=True)
@@ -97,3 +91,10 @@ def cross_cat_num(df, cat_col, num_col):
             del df_new
             gc.collect()
     return df
+
+
+# groupby
+gb = df.groupby(['user_id', 'page_id'], ax_index=False).agg(
+    {'ad_price': {'max_price': np.max, 'min_price': np.min}})
+gb.columns = ['user_id', 'page_id', 'min_price', 'max_price']
+df = pd.merge(df, gb, on=['user_id', 'page_id'], how='left')
