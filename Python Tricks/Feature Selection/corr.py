@@ -3,7 +3,8 @@
 # Email  : 15602409303@163.com
 # Author : Zhou Yang
 
-def correalation(df, threshold):
+
+def correlation(df, threshold):
     """
     去除特征相关系数大于阈值的特征
     :param df:
@@ -20,5 +21,6 @@ def correalation(df, threshold):
 
     return col_corr
 
-col = correalation(X_train, 0.8)
+
+col = correlation(X_train, 0.8)
 print('Correlated columns: ', col)

@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import gc
-
+from mlxtend.feature_selection import SequentialFeatureSelector
 
 # 筛选object特征
 df_object = df.select_dtypes(include=['object'])
