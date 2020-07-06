@@ -292,10 +292,10 @@ class FeatureSelector():
         for _ in range(n_iterations):
 
             if task == 'classification':
-                model = lgb.LGBMClassifier(n_estimators=1000, learning_rate = 0.05, verbose = -1)
+                model = lgb.LGBMClassifier(n_estimators=1000, learning_rate = 0.05, verbose = -1, seed=2020)
 
             elif task == 'regression':
-                model = lgb.LGBMRegressor(n_estimators=1000, learning_rate = 0.05, verbose = -1)
+                model = lgb.LGBMRegressor(n_estimators=1000, learning_rate = 0.05, verbose = -1, seed=2020)
 
             else:
                 raise ValueError('Task must be either "classification" or "regression"')
@@ -303,7 +303,7 @@ class FeatureSelector():
             # If training using early stopping need a validation set
             if early_stopping:
                 
-                train_features, valid_features, train_labels, valid_labels = train_test_split(features, labels, test_size = 0.15, stratify=labels)
+                train_features, valid_features, train_labels, valid_labels = train_test_split(features, labels, test_size = 0.2, stratify=labels)
 
                 # Train the model with early stopping
                 model.fit(train_features, train_labels, eval_metric = eval_metric,
