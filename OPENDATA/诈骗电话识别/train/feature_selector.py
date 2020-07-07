@@ -503,9 +503,9 @@ class FeatureSelector():
         self.removed_features = features_to_drop
         
         if not keep_one_hot:
-        	print('Removed %d features including one-hot features.' % len(features_to_drop))
+            print('Removed %d features including one-hot features.' % len(features_to_drop))
         else:
-        	print('Removed %d features.' % len(features_to_drop))
+            print('Removed %d features.' % len(features_to_drop))
         
         return data
     
@@ -557,16 +557,16 @@ class FeatureSelector():
             raise NotImplementedError('Collinear features have not been idenfitied. Run `identify_collinear`.')
         
         if plot_all:
-        	corr_matrix_plot = self.corr_matrix
-        	title = 'All Correlations'
+            corr_matrix_plot = self.corr_matrix
+            title = 'All Correlations'
         
         else:
-	        # Identify the correlations that were above the threshold
-	        # columns (x-axis) are features to drop and rows (y_axis) are correlated pairs
-	        corr_matrix_plot = self.corr_matrix.loc[list(set(self.record_collinear['corr_feature'])), 
-	                                                list(set(self.record_collinear['drop_feature']))]
+            # Identify the correlations that were above the threshold
+            # columns (x-axis) are features to drop and rows (y_axis) are correlated pairs
+            corr_matrix_plot = self.corr_matrix.loc[list(set(self.record_collinear['corr_feature'])),
+                                                    list(set(self.record_collinear['drop_feature']))]
 
-	        title = "Correlations Above Threshold"
+            title = "Correlations Above Threshold"
 
        
         f, ax = plt.subplots(figsize=(10, 8))
