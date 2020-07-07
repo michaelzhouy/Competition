@@ -80,3 +80,55 @@ for i, (train_index, test_index) in enumerate(skf.split(train_x, train_y)):
                            label=y_test,
                            reference=lgb_train)
     exec('gbm{} = lgb.train(params, lgb_train, valid_sets=[lgb_test, lgb_test], early_stopping_rounds=200, verbose_eval=100)'.format(i))
+
+
+# 单特征AUC筛选
+useful_cols = []
+useless_cols = []
+
+for i in train_cols:
+    print(i)
+
+    lgb_train = lgb.Dataset(X_train[[i]].values, y_train)
+    lgb_valid = lgb.Dataset(X_valid[[i]].values, y_valid, reference=lgb_train)
+    lgb_test = lgb.train(params,
+                         lgb_train,
+                         num_boost_round=1000,
+                         valid_sets=[lgb_valid, lgb_train],
+                         early_stopping_rounds=50,
+                         verbose_eval=20)
+
+    print('*' * 5)
+    print(lgb_test.best_score['valid_0']['auc'])
+    if lgb_test.best_score['valid_0']['auc'] > 0.52:
+        useful_cols.append(i)
+    else:
+        useless_cols.append(i)
+    print('*' * 20)
+    print('\n')
+
+
+def correlation(df, threshold):
+    """
+    去除特征相关系数大于阈值的特征
+    :param df:
+    :param threshold:
+    :return:
+    """
+    col_corr = set()
+    corr_matrix = df.corr()
+    for i in range(len(corr_matrix.columns)):
+        for j in range(i):
+            if abs(corr_matrix.iloc[i, j]) > threshold:
+                colName_i = corr_matrix.columns[i]
+                colName_j = corr_matrix.columns[j]
+                if useful_cols[colName_i] >= useful_cols[colName_j]:
+                    col_corr.add(colName_j)
+                else:
+                    col_corr.add(colName_i)
+
+    return col_corr
+
+
+col = correlation(df_train.drop(['phone_no_m', 'label'], axis=1), 0.98)
+print('Correlated columns: ', col)
