@@ -4,6 +4,7 @@
 
 import pandas as pd
 import lightgbm as lgb
+from sklearn.model_selection import train_test_split
 
 
 def identify_single_unique(df):
@@ -43,10 +44,11 @@ def identify_missing(df, missing_threshold):
     return to_drop
 
 
-def auc_select(df_train, auc_threshold):
+def auc_select(df_train, auc_threshold=0.5):
     """
 
     @param df_train:
+    @param auc_threshold: AUC阈值
     @return:
     """
     X_train, X_valid, y_train, y_valid = train_test_split(df_train.drop(['phone_no_m', 'label'], axis=1), df_train['label'],
@@ -91,14 +93,14 @@ def auc_select(df_train, auc_threshold):
         print('\n')
 
 
-def correlation(df, threshold):
+def correlation(df, useful_cols, threshold=0.98):
     """
     去除特征相关系数大于阈值的特征
     :param df:
-    :param threshold:
+    :param threshold: 阈值
+    :param useful_cols: 包含特征AUC的字典
     :return:
     """
-    cols = df.columns
     col_corr = set()
     corr_matrix = df.corr()
     for i in range(len(corr_matrix.columns)):
@@ -106,7 +108,7 @@ def correlation(df, threshold):
             if abs(corr_matrix.iloc[i, j]) > threshold:
                 colName_i = corr_matrix.columns[i]
                 colName_j = corr_matrix.columns[j]
-                if cols[colName_i] >= cols[colName_j]:
+                if useful_cols[colName_i] >= useful_cols[colName_j]:
                     col_corr.add(colName_j)
                 else:
                     col_corr.add(colName_i)
@@ -114,7 +116,7 @@ def correlation(df, threshold):
     return col_corr
 
 
-col = correlation(df, 0.98)
+col = correlation(df, 0.98, useful_cols)
 print('Correlated columns: ', col)
 
 
