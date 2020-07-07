@@ -46,7 +46,7 @@ def identify_missing(df, missing_threshold):
 
 def auc_select(df_train, auc_threshold=0.5):
     """
-
+    单特征AUC筛选
     @param df_train:
     @param auc_threshold: AUC阈值
     @return:
@@ -95,7 +95,7 @@ def auc_select(df_train, auc_threshold=0.5):
 
 def correlation(df, useful_cols, threshold=0.98):
     """
-    去除特征相关系数大于阈值的特征
+    去除特征相关系数大于阈值的特征，保留AUC较大的特征
     :param df:
     :param threshold: 阈值
     :param useful_cols: 包含特征AUC的字典
