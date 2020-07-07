@@ -4,6 +4,8 @@ import lightgbm as lgb
 from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.metrics import roc_curve
 from sklearn.metrics import precision_recall_curve, f1_score
+import gc
+
 
 # regression
 params = {'boosting_type': 'gbdt',
@@ -132,3 +134,52 @@ def correlation(df, threshold):
 
 col = correlation(df_train.drop(['phone_no_m', 'label'], axis=1), 0.98)
 print('Correlated columns: ', col)
+
+oof = []
+prediction = df_test[['phone_no_m', 'arpu_202004']]
+prediction['label'] = 0
+df_importance_list = []
+
+kfold = StratifiedKFold(n_splits=5)
+for fold_id, (trn_idx, val_idx) in enumerate(kfold.split(df_train[feature_names], df_train[ycol])):
+    print('\nFold_{} Training ================================\n'.format(fold_id + 1))
+
+    X_train = df_train.iloc[trn_idx][feature_names]
+    Y_train = df_train.iloc[trn_idx][ycol]
+
+    X_val = df_train.iloc[val_idx][feature_names]
+    Y_val = df_train.iloc[val_idx][ycol]
+
+    lgb_train = lgb.Dataset(X_train, Y_train)
+    lgb_valid = lgb.Dataset(X_val, Y_val, reference=lgb_train)
+
+    lgb_model = lgb.train(params,
+                          lgb_train,
+                          num_boost_round=10000,
+                          valid_sets=[lgb_valid, lgb_train],
+                          early_stopping_rounds=100,
+                          verbose_eval=10)
+
+    pred_val = lgb_model.predict(X_val)
+    df_oof = df_train.iloc[val_idx][['phone_no_m', ycol]].copy()
+    df_oof['pred'] = pred_val
+    oof.append(df_oof)
+
+    pred_test = lgb_model.predict(df_test[feature_names])
+    prediction['label_{}'.format(fold_id)] = pred_test
+
+    importance = lgb_model.feature_importance(importance_type='gain')
+    feature_name = lgb_model.feature_name()
+    df_importance = pd.DataFrame({
+        'feature_name': feature_name,
+        'importance': importance
+    })
+    df_importance_list.append(df_importance)
+
+    del lgb_model, pred_val, pred_test, X_train, Y_train, X_val, Y_val
+    gc.collect()
+
+
+df_importance = pd.concat(df_importance_list)
+df_importance = df_importance.groupby(['feature_name'])['importance'].agg(
+    'mean').sort_values(ascending=False).reset_index()
