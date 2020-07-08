@@ -8,6 +8,22 @@ import pandas as pd
 import os
 import gc
 
+# 过滤警告
+import warnings
+warnings.filterwarnings('ignore')
+
+# DataFrame显示所有列
+pd.set_option('max_columns', None)
+pd.set_option('max_rows', None)
+
+# 读取压缩文件
+df = pd.read_csv('../input/file.txt.gz', compression='gzip', header=0, sep=',', quotechar='"')
+
+# 数据存储为h5格式
+df.to_hdf('data.h5', 'df')
+# 读取h5文件
+pd.read_hdf('data.h5')
+
 
 # 节省内存读文件
 def reduce_mem_usage(df):
@@ -64,10 +80,3 @@ def read_data(path):
 
     res = pd.concat(data_list, ignore_index=True)
     return res
-
-
-# 数据存储为h5格式
-df.to_hdf('data.h5', 'df')
-# 读取h5文件
-pd.read_hdf('data.h5')
-
