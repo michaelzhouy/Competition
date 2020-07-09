@@ -19,6 +19,10 @@ pd.set_option('max_rows', None)
 # 读取压缩文件
 df = pd.read_csv('../input/file.txt.gz', compression='gzip', header=0, sep=',', quotechar='"')
 
+reader = pd.read_csv('../input/train.csv', iterator=True)
+df = reader.get_chunk(10000)
+df.head()
+
 # 数据存储为h5格式
 df.to_hdf('data.h5', 'df')
 # 读取h5文件
