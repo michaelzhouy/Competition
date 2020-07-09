@@ -14,7 +14,10 @@ lgvalid = lgtrain.create_valid(X_val, y_val)
 
 focal_loss = lambda x,y: focal_loss_lgb(x, y, 0.25, 2.)
 eval_error = lambda x,y: focal_loss_lgb_eval_error(x, y, 0.25, 2.)
-params = {'learning_rate': 0.1, 'num_boost_round': 10}
+params = {
+    'learning_rate': 0.1,
+    'num_boost_round': 10
+}
 model = lgb.train(params,
                   lgtrain,
                   valid_sets=[lgvalid],
