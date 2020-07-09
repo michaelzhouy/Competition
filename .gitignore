@@ -9,3 +9,7 @@
 *.h5
 *.zip
 *.pyc
+*.p
+*.data
+*.names
+*.test
