@@ -143,8 +143,8 @@ def get_label(end_date, n_day):
 
     # 计算visit_date和end_date之间相差的天数
     label['diff_of_day'] = label['visit_date'].apply(lambda x: diff_of_days(x, end_date))
-    label['month'] = label['visit_date'].str[5:7].astype(int)  # visit_date所在的月
-    label['year'] = label['visit_date'].str[:4].astype(int)  # visit_date所在的年
+    label['month'] = label['visit_date'].str[5:7].astype(int)  # visit_date所在的月份
+    label['year'] = label['visit_date'].str[:4].astype(int)  # visit_date所在的年份
     # date_info表中日期加天数
     for i in [3, 2, 1, -1]:
         date_info_temp = date_info.copy()
