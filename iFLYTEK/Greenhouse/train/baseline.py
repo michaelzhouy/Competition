@@ -21,6 +21,46 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
+
+def get_psi(train,test,f_cols):
+    psi_res = pd.DataFrame()
+    psi_dict={}
+    for c in tqdm(f_cols):
+        try:
+            t_train = train[c].fillna(-998)
+            t_test = test[c].fillna(-998)
+            #获取切分点
+            bins=[]
+            for i in np.arange(0,1.1,0.2):
+                bins.append(t_train.quantile(i))
+            bins=sorted(set(bins))
+            bins[0]=-np.inf
+            bins[-1]=np.inf
+            #计算psi
+            t_psi = pd.DataFrame()
+            t_psi['train'] = pd.cut(t_train,bins).value_counts().sort_index()
+            t_psi['test'] = pd.cut(t_test,bins).value_counts()
+            if c == 'outdoorTemp':
+                print(t_psi['train'])
+                print(t_psi['test'])
+            t_psi.index=[str(x) for x in t_psi.index]
+            t_psi.loc['总计',:] = t_psi.sum()
+            t_psi['train_rate'] = t_psi['train']/t_psi.loc['总计','train']
+            t_psi['test_rate'] = t_psi['test']/t_psi.loc['总计','test']
+            t_psi['psi'] = (t_psi['test_rate']-t_psi['train_rate'])*(np.log(t_psi['test_rate'])-np.log(t_psi['train_rate']))
+            t_psi.loc['总计','psi'] = t_psi['psi'].sum()
+            t_psi.index.name=c
+            #汇总
+            t_res = pd.DataFrame([[c,t_psi.loc['总计','psi']]],
+                                 columns=['变量名','PSI'])
+            psi_res = pd.concat([psi_res,t_res])
+            psi_dict[c]=t_psi
+            print(c,'done')
+        except:
+            print(c,'error')
+    return psi_res,psi_dict
+
+
 train_df = pd.read_csv('../input/train.csv')
 test_df = pd.read_csv('../input/test.csv')
 sub = pd.DataFrame(test_df['time'])
@@ -33,7 +73,9 @@ train_df.columns = ['time', 'year', 'month', 'day', 'hour', 'min', 'sec', 'outdo
                     'indoorHum', 'indoorAtmo', 'temperature']
 test_df.columns = ['time', 'year', 'month', 'day', 'hour', 'min', 'sec', 'outdoorTemp', 'outdoorHum', 'outdoorAtmo',
                    'indoorHum', 'indoorAtmo']
-
+print('train_df.shape: ', train_df.shape)
+train_df = train_df.loc[(train_df['outdoorTemp'] >= test_df['outdoorTemp'].min()) & (train_df['outdoorTemp'] <= test_df['outdoorTemp'].max())]
+print('处理后 train_df.shape: ', train_df.shape)
 data_df = pd.concat([train_df, test_df], axis=0, ignore_index=True)
 
 # 基本聚合特征
@@ -250,18 +292,27 @@ x_test = test_df[features]
 
 y_train = train_df['temperature'].values - train_df['outdoorTemp'].values
 
-lr_train, lr_test = ridge_model(x_train, y_train, x_test)
+print('-' * 10)
+psi_res, psi_dict = get_psi(x_train,x_test,features)
+print('-' * 10)
+print(psi_res)
+print('-' * 10)
+print(psi_dict)
 
-sgd_train, sgd_test = sgd_model(x_train, y_train, x_test)
+features = list(psi_res[psi_res['PSI'] <= 0.2]['变量名'].values) + ['outdoorTemp']
 
-lgb_train, lgb_test = lgb_model(x_train, y_train, x_test)
-
+# lr_train, lr_test = ridge_model(x_train, y_train, x_test)
+#
+# sgd_train, sgd_test = sgd_model(x_train, y_train, x_test)
+#
+# lgb_train, lgb_test = lgb_model(x_train, y_train, x_test)
+#
 xgb_train, xgb_test = xgb_model(x_train, y_train, x_test)
-
-cat_train, cat_test = cat_model(x_train, y_train, x_test)
-
-train_pred = (lr_train + sgd_train + lgb_train[:, 0] + xgb_train[:, 0] + cat_train) / 5
-test_pred = (lr_test + sgd_test + lgb_test[:, 0] + xgb_test[:, 0] + cat_test) / 5
-
+#
+# cat_train, cat_test = cat_model(x_train, y_train, x_test)
+#
+# train_pred = (lr_train + sgd_train + lgb_train[:, 0] + xgb_train[:, 0] + cat_train) / 5
+# test_pred = (lr_test + sgd_test + lgb_test[:, 0] + xgb_test[:, 0] + cat_test) / 5
+#
 sub["temperature"] = xgb_test[:, 0] + test_df['outdoorTemp'].values
-sub.to_csv('../sub/sub_baseline.csv', index=False)
+sub.to_csv('../sub/sub_baseline_psi.csv', index=False)
