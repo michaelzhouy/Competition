@@ -206,7 +206,7 @@ def single_model(clf, train_x, train_y, test_x, clf_name, class_num=1):
                   'max_depth': 8,
                   'subsample': 0.5,
                   'colsample_bytree': 0.5,
-                  'eta': 0.1,
+                  'eta': 0.001,
                   'seed': 2020,
                   'nthread': 36,
                   'silent': True,
@@ -287,6 +287,8 @@ drop_columns = ["time", "year", "sec", "temperature"]
 train_count = train_df.shape[0]
 train_df = data_df[:train_count].copy().reset_index(drop=True)
 test_df = data_df[train_count:].copy().reset_index(drop=True)
+del data_df
+gc.collect()
 
 features = train_df[:1].drop(drop_columns, axis=1).columns
 x_train = train_df[features]
@@ -296,10 +298,10 @@ y_train = train_df['temperature'].values - train_df['outdoorTemp'].values
 
 print('-' * 10)
 psi_res, psi_dict = get_psi(x_train,x_test,features)
-print('-' * 10)
-print(psi_res)
-print('-' * 10)
-print(psi_dict)
+# print('-' * 10)
+# print(psi_res)
+# print('-' * 10)
+# print(psi_dict)
 
 features = list(psi_res[psi_res['PSI'] <= 0.2]['变量名'].values) + ['outdoorTemp']
 
