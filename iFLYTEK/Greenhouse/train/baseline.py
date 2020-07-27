@@ -78,6 +78,9 @@ train_df = train_df.loc[(train_df['outdoorTemp'] >= test_df['outdoorTemp'].min()
 print('处理后 train_df.shape: ', train_df.shape)
 data_df = pd.concat([train_df, test_df], axis=0, ignore_index=True)
 
+data_df['indoorAtmo-outdoorAtmo'] = data_df['indoorAtmo'] - data_df['outdoorAtmo']
+data_df['indoorHum-outdoorHum'] = data_df['indoorHum'] - data_df['outdoorHum']
+
 # 基本聚合特征
 group_feats = []
 for f in tqdm(['outdoorTemp', 'outdoorHum', 'outdoorAtmo', 'indoorHum', 'indoorAtmo']):
@@ -92,7 +95,6 @@ for f in tqdm(['outdoorTemp', 'outdoorHum', 'outdoorAtmo', 'indoorHum', 'indoorA
 
 # 基本交叉特征
 for f1 in tqdm(['outdoorTemp', 'outdoorHum', 'outdoorAtmo', 'indoorHum', 'indoorAtmo'] + group_feats):
-
     for f2 in ['outdoorTemp', 'outdoorHum', 'outdoorAtmo', 'indoorHum', 'indoorAtmo'] + group_feats:
         if f1 != f2:
             colname = '{}_{}_ratio'.format(f1, f2)
@@ -204,7 +206,7 @@ def single_model(clf, train_x, train_y, test_x, clf_name, class_num=1):
                   'max_depth': 8,
                   'subsample': 0.5,
                   'colsample_bytree': 0.5,
-                  'eta': 0.001,
+                  'eta': 0.1,
                   'seed': 2020,
                   'nthread': 36,
                   'silent': True,
