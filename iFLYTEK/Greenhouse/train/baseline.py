@@ -78,8 +78,8 @@ train_df = train_df.loc[(train_df['outdoorTemp'] >= test_df['outdoorTemp'].min()
 print('处理后 train_df.shape: ', train_df.shape)
 data_df = pd.concat([train_df, test_df], axis=0, ignore_index=True)
 
-data_df['indoorAtmo-outdoorAtmo'] = data_df['indoorAtmo'] - data_df['outdoorAtmo']
-data_df['indoorHum-outdoorHum'] = data_df['indoorHum'] - data_df['outdoorHum']
+# data_df['indoorAtmo-outdoorAtmo'] = data_df['indoorAtmo'] - data_df['outdoorAtmo']
+# data_df['indoorHum-outdoorHum'] = data_df['indoorHum'] - data_df['outdoorHum']
 
 # 基本聚合特征
 group_feats = []
@@ -319,4 +319,4 @@ xgb_train, xgb_test = xgb_model(x_train, y_train, x_test)
 # test_pred = (lr_test + sgd_test + lgb_test[:, 0] + xgb_test[:, 0] + cat_test) / 5
 #
 sub["temperature"] = xgb_test[:, 0] + test_df['outdoorTemp'].values
-sub.to_csv('../sub/sub_baseline_psi.csv', index=False)
+sub.to_csv('../sub/sub_psi.csv', index=False)
