@@ -9,14 +9,9 @@ from sklearn.model_selection import train_test_split
 
 def identify_single_unique(df):
     """
-
-    Parameters
-    ----------
-    df
-
-    Returns
-    -------
-
+    单一值
+    @param df:
+    @return:
     """
     unique_cnts = df.nunique()
     unique_cnts = unique_cnts.sort_values(by='nunique', ascending=True)
@@ -27,15 +22,10 @@ def identify_single_unique(df):
 
 def identify_missing(df, missing_threshold):
     """
-
-    Parameters
-    ----------
-    df
-    missing_threshold
-
-    Returns
-    -------
-
+    缺失率
+    @param df:
+    @param missing_threshold:
+    @return:
     """
     missing_rate = df.isnull().sum() / len(df)
     missing_rate = missing_rate.sort_values(ascending=False)
@@ -96,10 +86,13 @@ def auc_select(df_train, auc_threshold=0.5):
 def correlation(df, useful_cols, threshold=0.98):
     """
     去除特征相关系数大于阈值的特征，保留AUC较大的特征
-    :param df:
-    :param threshold: 阈值
-    :param useful_cols: 包含特征AUC的字典
-    :return:
+    调用方法
+    col = correlation(df, useful_cols, 0.98)
+    print('Correlated columns: ', col)
+    @param df:
+    @param useful_cols: 包含特征AUC的字典
+    @param threshold: 阈值
+    @return:
     """
     col_corr = set()
     corr_matrix = df.corr()
@@ -116,8 +109,21 @@ def correlation(df, useful_cols, threshold=0.98):
     return col_corr
 
 
-col = correlation(df, 0.98, useful_cols)
-print('Correlated columns: ', col)
+def correlation(df, threshold=0.98):
+    """
+    特征相关性计算
+    @param df:
+    @param threshold:
+    @return:
+    """
+    col_corr = set()
+    corr_matrix = df.corr()
+    for i in range(len(corr_matrix.columns)):
+        for j in range(i):
+            if abs(corr_matrix.iloc[i, j]) > threshold:
+                colName = corr_matrix.columns[i]
+                col_corr.add(colName)
+    return col_corr
 
 
 # 首先计算出特征重要性
