@@ -8,6 +8,8 @@ import pandas as pd
 from dateutil.parser import parse
 from datetime import date, timedelta
 from sklearn.preprocessing import LabelEncoder
+import datetime
+import lightgbm as lgb
 
 data_path = '../input/'
 
@@ -676,9 +678,6 @@ def make_feats(end_date, n_day):
     print('spending {}s'.format(time.time() - t0))
     return result
 
-
-import datetime
-import lightgbm as lgb
 
 train_feat = pd.DataFrame()
 start_date = '2017-03-12'
