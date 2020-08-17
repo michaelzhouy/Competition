@@ -71,35 +71,31 @@ submit_sample[['id','click']].to_csv('./sub/baseline5.csv', index=False)
 1.  对类别特征value_counts()，查看异常情况，是否某些取值出现的次数高出其他取值出现的次数几个数量级，可能是缺失值的一种编码方式
 
 2.  基于用户的统计特征（找到uid）
+- 时间序列，用户每天，每个小时在app上出现的次数，用户距上一次出现的时间差
 
-     1.    时间序列，用户每天，每个小时在app上出现的次数，用户距上一次出现的时间差
-
-           ```python
-           data['datetime'] = data['hour'].map(lambda x: datetime.strptime(str(x), '%y%m%d%H'))
+```python
+ data['datetime'] = data['hour'].map(lambda x: datetime.strptime(str(x), '%y%m%d%H'))
            
-           data['dayoftheweek'] = data['datetime'].map(lambda x: x.weekday())
-           data['day'] = data['datetime'].map(lambda x: x.day)
-           data['hour'] = data['datetime'].map(lambda x: x.hour)
+data['dayoftheweek'] = data['datetime'].map(lambda x: x.weekday())
+data['day'] = data['datetime'].map(lambda x: x.day)
+data['hour'] = data['datetime'].map(lambda x: x.hour)
            
-           data['time'] = (data['day'] - data['day'].min()) * 24  + data['hour']
+data['time'] = (data['day'] - data['day'].min()) * 24  + data['hour']
            
-           # 用户每天、每小时出现的次数
-           groupby(['uid', 'day'])['label'].agg(xxx='count')
-           groupby(['uid', 'time'])['label'].agg(xxx='count')
-       
-           # 用户每天、每小时在某个app上出现的次数
-       groupby(['uid', 'day', 'app_id'])['label'].agg(xxx='count')
-           groupby(['uid', 'time', 'app_id'])['label'].agg(xxx='count')
+# 用户每天、每小时出现的次数
+groupby(['uid', 'day'])['label'].agg(xxx='count')
+groupby(['uid', 'time'])['label'].agg(xxx='count')
+                
+# 用户每天、每小时在某个app上出现的次数
+groupby(['uid', 'day', 'app_id'])['label'].agg(xxx='count')
+groupby(['uid', 'time', 'app_id'])['label'].agg(xxx='count')
            
-           # 用户距上一次出现的时间差
-           data['user_to_lasttime'] = data.groupby('user_id')['time'].diff()
-       ```
-    
-     2.    时间序列，用户每天、每个小时在C14，C17上出现的次数（C14，C17为类别特征取值较多的特征）
-    
-           ```python
-           groupby(['uid', 'day', 'C14'])['label'].agg(xxx='count')
-           groupby(['uid', 'time', 'C17'])['label'].agg(xxx='count')
-           ```
-    
-           
+# 用户距上一次出现的时间差
+data['user_to_lasttime'] = data.groupby('user_id')['time'].diff()
+```
+- 时间序列，用户每天、每个小时在C14，C17上出现的次数（C14，C17为类别特征取值较多的特征）
+  
+```python
+groupby(['uid', 'day', 'C14'])['label'].agg(xxx='count')
+groupby(['uid', 'time', 'C17'])['label'].agg(xxx='count')
+```
