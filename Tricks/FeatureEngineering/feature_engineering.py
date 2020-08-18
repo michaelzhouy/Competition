@@ -15,6 +15,7 @@ from mlxtend.feature_selection import SequentialFeatureSelector
 # 过滤警告
 import warnings
 warnings.filterwarnings('ignore')
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # DataFrame显示所有列
 pd.set_option('max_columns', None)
@@ -96,7 +97,7 @@ df_object = df.select_dtypes(include=['object'])
 df_numerical = df.select_dtypes(exclude=['object'])
 
 
-def get_same_set(train_df,test_df):
+def get_same_set(train_df, test_df):
     """
     test中出现，train中没有出现的取值编码
     @param train_df:
