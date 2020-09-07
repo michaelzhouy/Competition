@@ -11,7 +11,8 @@ import gc
 params = {'boosting_type': 'gbdt',
           'objective': 'regression',
           'metric': 'mae',
-          'learning_rate': 0.05}
+          'learning_rate': 0.05,
+          'seed': 2020}
 
 # binary
 params = {'objective': 'binary',
