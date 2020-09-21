@@ -63,13 +63,17 @@ def get_adjoin_feature(df_, start, end, col, group, space):
         add_feat.append('adjoin_{}_{}_{}_{}_{}_diff'.format(col, group, i, i + space, space))  # 首尾差值
         add_feat.append('adjoin_{}_{}_{}_{}_{}_ratio'.format(col, group, i, i + space, space))  # 首尾比例
         df['adjoin_{}_{}_{}_{}_{}_sum'.format(col, group, i, i + space, space)] = 0
+        # sum需要遍历
         for j in range(0, space + 1):
             df['adjoin_{}_{}_{}_{}_{}_sum'.format(col, group, i, i + space, space)] = (df['adjoin_{}_{}_{}_{}_{}_sum'.format(col, group, i, i + space, space)]
                                                                                        + df['shift_{}_{}_{}'.format(col, 'adcode_model_mt', i + j)])
+        # 平均
         df['adjoin_{}_{}_{}_{}_{}_mean'.format(col, group, i, i + space, space)] = (df['adjoin_{}_{}_{}_{}_{}_sum'.format(col, group, i, i + space, space)]
                                                                                     / (space + 1))
+        # (当前i)-(space+i)
         df['adjoin_{}_{}_{}_{}_{}_diff'.format(col, group, i, i + space, space)] = (df['shift_{}_{}_{}'.format(col, 'adcode_model_mt', i)]
                                                                                     - df['shift_{}_{}_{}'.format(col, 'adcode_model_mt', i + space)])
+        # (当前i)/(space+i)
         df['adjoin_{}_{}_{}_{}_{}_ratio'.format(col, group, i, i + space, space)] = (df['shift_{}_{}_{}'.format(col, 'adcode_model_mt', i)]
                                                                                      / df['shift_{}_{}_{}'.format(col, 'adcode_model_mt', i + space)])
     return df, add_feat
