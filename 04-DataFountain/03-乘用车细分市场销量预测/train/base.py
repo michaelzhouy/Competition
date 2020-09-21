@@ -27,9 +27,9 @@ def get_shift_feature(df_, start, end, col, group):
     @param df_:
     @param start:
     @param end:
-    @param col: label,popularity
-    @param group: adcode_model_mt, model_mt
-    @return:
+    @param col: label, popularity
+    @param group: adcode_model_mt, model_mt，根据该列来shift，然后map
+    @return: 新增列，例如label_adcode_model_mt_1
     """
     df = df_.copy()
     add_feat = []
@@ -46,7 +46,7 @@ def get_shift_feature(df_, start, end, col, group):
 
 def get_adjoin_feature(df_, start, end, col, group, space):
     """
-    相邻N月的首尾统计，shift统一为adcode_model_mt
+    相邻N月的首尾统计（求和、求均值、差值、比例），shift统一为adcode_model_mt
     @param df_:
     @param start:
     @param end:
