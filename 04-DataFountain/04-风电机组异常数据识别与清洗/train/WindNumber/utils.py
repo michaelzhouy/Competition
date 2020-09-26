@@ -35,12 +35,13 @@ def low_limit(v, vci, vr, vco, Pr=2000):
     @param Pr: 额定功率
     @return:
     """
+    S = pi * (D / 2) ** 2
     if v < vci or v > vco:
         return 0
     elif (v >= vci) and (v < vr):
-        return a(Pr, vr, vci) * v ** 3 - b(vr, vci) * Pr
+        return 0.05 * S * (a(Pr, vr, vci) * v ** 3 - b(vr, vci) * Pr)
     elif (v > vr) and (v < vco):
-        return Pr
+        return 0.05 * S * Pr
 
 
 def high_limit(v, D, Cp=0.593):
