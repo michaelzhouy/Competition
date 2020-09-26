@@ -44,12 +44,17 @@ def low_limit(v, vci, vr, vco, Pr=2000):
         return 0.05 * S * Pr
 
 
-def high_limit(v, D, Cp=0.593):
+def high_limit(v, D, max_, Cp=0.593):
     """
     计算上限
     @param v: 风速
     @param D: 风轮直径
+    @param max_: 功率的上限
     @param Cp: 风能利用系数
     @return:
     """
-    return 0.5 * 1.29 / 1000 * pi * Cp * (D / 2) ** 2 * v ** 3
+    res = 0.5 * 1.29 / 1000 * pi * Cp * (D / 2) ** 2 * v ** 3
+    if res > max_:
+        return max_
+    else:
+        return res
