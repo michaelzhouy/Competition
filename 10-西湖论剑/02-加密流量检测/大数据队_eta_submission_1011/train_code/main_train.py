@@ -90,4 +90,3 @@ if __name__ == '__main__':
     train_path = '../data/train.csv'
     test_path = '../data/test_1.csv'
     train_func(train_path, test_path)
-
