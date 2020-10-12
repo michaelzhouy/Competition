@@ -72,7 +72,10 @@ def train_func(train_path, test_path):
 
     train_dataset = lgb.Dataset(X_train, y_train)
     valid_dataset = lgb.Dataset(X_valid, y_valid, reference=train_dataset)
-    all_dataset = lgb.Dataset(X, y, reference=train_dataset)
+    all_dataset = lgb.Dataset(X, y)
+
+    print('-' * 10)
+    print(y.mean())
 
     params = {'objective': 'binary',
               'boosting': 'gbdt',
@@ -88,6 +91,7 @@ def train_func(train_path, test_path):
               'first_metric_only': True,
               'is_unbalance': True,
               'max_depth': -1,
+              # 'verbose': -1,
               'seed': 2020}
     valid_model = lgb.train(params,
                             train_dataset,
@@ -97,10 +101,15 @@ def train_func(train_path, test_path):
     y_valid_pred = np.where(valid_model.predict(X_valid) > 0.5, 1, 0)
     print('Valid F1: ', f1_score(y_valid, y_valid_pred))
 
-    # train_model = lgb.train(params,
-    #                         all_dataset,
-    #                         num_boost_round=valid_model.best_iteration+100)
-    # y_test_pred = np.where(valid_model.predict(X_valid) > 0.5, 1, 0)
+    # y_test_pred = np.where(valid_model.predict(X_test) > 0.5, 1, 0)
+    # print('Valid F1: ', f1_score(y_valid, y_valid_pred))
+
+    train_model = lgb.train(params,
+                            all_dataset,
+                            num_boost_round=valid_model.best_iteration+100)
+    y_test_pred = np.where(train_model.predict(X_test) > 0.5, 1, 0)
+    positive_rate = np.sum(y_test_pred) / y_test_pred.shape[0]
+    print(positive_rate)
 
 
 if __name__ == '__main__':
