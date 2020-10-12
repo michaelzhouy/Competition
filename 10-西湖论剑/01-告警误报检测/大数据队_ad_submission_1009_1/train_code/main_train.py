@@ -104,6 +104,22 @@ def train_func(train_path, test_path):
     # y_test_pred = np.where(valid_model.predict(X_test) > 0.5, 1, 0)
     # print('Valid F1: ', f1_score(y_valid, y_valid_pred))
 
+    params = {'objective': 'binary',
+              'boosting': 'gbdt',
+              'metric': 'auc',
+              # 'metric': 'None',  # 用自定义评估函数是将metric设置为'None'
+              # 'num_iterations': 1000000,
+              'learning_rate': 0.1,
+              'num_leaves': 31,
+              'lambda_l1': 0,
+              'lambda_l2': 1,
+              'num_threads': 23,
+              'min_data_in_leaf': 20,
+              'first_metric_only': True,
+              'is_unbalance': True,
+              'max_depth': -1,
+              # 'verbose': -1,
+              'seed': 2020}
     train_model = lgb.train(params,
                             all_dataset,
                             num_boost_round=valid_model.best_iteration+100)
