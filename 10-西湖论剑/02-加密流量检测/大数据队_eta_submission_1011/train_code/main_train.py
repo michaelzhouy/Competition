@@ -11,7 +11,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-def train_func(train_path, test_path):
+def train_func(train_path, test_path, save_path):
     # 请填写训练代码
     train = pd.read_csv(train_path)
     test = pd.read_csv(test_path)
@@ -66,7 +66,7 @@ def train_func(train_path, test_path):
               'boosting': 'gbdt',
               'metric': 'auc',
               # 'metric': 'None',  # 用自定义评估函数是将metric设置为'None'
-              'num_iterations': 1000000,
+              'num_boost_round': 1000000,
               'learning_rate': 0.1,
               'num_leaves': 31,
               'lambda_l1': 0,
@@ -84,9 +84,20 @@ def train_func(train_path, test_path):
                             verbose_eval=300)
     y_valid_pred = np.where(valid_model.predict(X_valid) > 0.5, 1, 0)
     print('Valid F1: ', f1_score(y_valid, y_valid_pred))
+    print('Valid mean label: ', np.mean(y_valid_pred))
+
+    train_model = lgb.train(params,
+                            all_dataset,
+                            num_boost_round=valid_model.best_iteration+100)
+    y_test_pred = np.where(train_model.predict(X_test) > 0.5, 1, 0)
+
+    print('Test mean label: ', np.mean(y_test_pred))
+    sub['label'] = y_test_pred
+    sub.to_csv(save_path + '大数据队_eta_submission_1012.csv', index=False)
 
 
 if __name__ == '__main__':
     train_path = '../data/train.csv'
     test_path = '../data/test_1.csv'
-    train_func(train_path, test_path)
+    save_path = '../result/'
+    train_func(train_path, test_path, save_path)
