@@ -26,6 +26,10 @@ def train_func(train_path, test_path, save_path):
     del train, test
     gc.collect()
 
+    single_cols = ['appProtocol']
+    data.drop(single_cols, axis=1, inplace=True)
+    gc.collect()
+
     cat_cols = ['srcAddress', 'destAddress', 'tlsVersion',
                 'tlsSubject', 'tlsIssuerDn', 'tlsSni']
 
@@ -33,9 +37,8 @@ def train_func(train_path, test_path, save_path):
     data['destAddressPort'] = data['destAddress'].astype(str) + data['destPort'].astype(str)
     cat_cols += ['srcAddressPort', 'destAddressPort']
     num_cols = ['bytesOut', 'bytesIn', 'pktsIn', 'pktsOut']
-    single_cols = ['appProtocol']
-    data.drop(single_cols, axis=1, inplace=True)
-    gc.collect()
+    data['bytesOut-bytesIn'] = data['bytesOut'] - data['bytesIn']
+    data['pktsOut-pktsIn'] = data['pktsOut'] - data['pktsIn']
 
     tlsVersion_map = {
         'TLSv1': 1,
@@ -57,7 +60,8 @@ def train_func(train_path, test_path, save_path):
         data[i] = lbl.fit_transform(data[i].astype(str))
         data[i] = data[i].astype('category')
 
-    used_cols = num_cols + cat_cols + [i + '_count' for i in cat_cols]
+    # used_cols = num_cols + cat_cols + [i + '_count' for i in cat_cols]
+    used_cols = [i for i in data.columns if i not in ['eventId', 'label', 'srcPort', 'destPort']]
     train = data.loc[data['label'].notnull(), :]
     test = data.loc[data['label'].isnull(), :]
     sub = test[['eventId']]
