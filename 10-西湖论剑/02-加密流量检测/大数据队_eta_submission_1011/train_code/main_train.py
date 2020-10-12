@@ -11,6 +11,13 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
+def count_encode(df, cols=[]):
+    for col in cols:
+        print(col)
+        vc = df[col].value_counts(dropna=True, normalize=True)
+        df[col + '_count'] = df[col].map(vc).astype('float32')
+
+
 def train_func(train_path, test_path, save_path):
     # 请填写训练代码
     train = pd.read_csv(train_path)
@@ -43,12 +50,14 @@ def train_func(train_path, test_path, save_path):
     data['tlsVersion_map'] = data['tlsVersion'].map(tlsVersion_map)
     cat_cols.append('tlsVersion_map')
 
+    count_encode(data, cat_cols)
+
     for i in cat_cols:
         lbl = LabelEncoder()
         data[i] = lbl.fit_transform(data[i].astype(str))
         data[i] = data[i].astype('category')
 
-    used_cols = num_cols + cat_cols
+    used_cols = num_cols + cat_cols + [i + '_count' for i in cat_cols]
     train = data.loc[data['label'].notnull(), :]
     test = data.loc[data['label'].isnull(), :]
     sub = test[['eventId']]
@@ -83,7 +92,7 @@ def train_func(train_path, test_path, save_path):
                             early_stopping_rounds=200,
                             verbose_eval=300)
     y_valid_pred = np.where(valid_model.predict(X_valid) > 0.5, 1, 0)
-    print('Valid F1: ', f1_score(y_valid, y_valid_pred))
+    print('Valid F1: ', np.round(f1_score(y_valid, y_valid_pred), 5))
     print('Valid mean label: ', np.mean(y_valid_pred))
 
     params = {'objective': 'binary',
