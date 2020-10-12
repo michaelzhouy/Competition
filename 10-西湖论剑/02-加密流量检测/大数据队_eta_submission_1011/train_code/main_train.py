@@ -60,7 +60,7 @@ def train_func(train_path, test_path, save_path):
         data[i] = lbl.fit_transform(data[i].astype(str))
         data[i] = data[i].astype('category')
 
-    used_cols = [i for i in data.columns if i not in ['eventId', 'label', 'srcPort', 'destPort']]
+    used_cols = [i for i in data.columns if i not in ['eventId', 'label']]
     train = data.loc[data['label'].notnull(), :]
     test = data.loc[data['label'].isnull(), :]
     sub = test[['eventId']]
