@@ -16,6 +16,6 @@ def test_func(test_path,save_path):
 
 
 if __name__ == '__main__':
-    test_path = '../data/test_1.csv'
-    sava_path = '../results/'
+	test_path = '../data/test_1.csv'
+	sava_path = '../results/'
 	test_func(test_path,sava_path)
