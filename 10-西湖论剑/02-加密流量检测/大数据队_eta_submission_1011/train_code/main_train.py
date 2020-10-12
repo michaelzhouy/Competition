@@ -60,7 +60,7 @@ def train_func(train_path, test_path, save_path):
 
     train_dataset = lgb.Dataset(X_train, y_train)
     valid_dataset = lgb.Dataset(X_valid, y_valid, reference=train_dataset)
-    all_dataset = lgb.Dataset(X, y, reference=train_dataset)
+    all_dataset = lgb.Dataset(train[used_cols], train['label'], reference=train_dataset)
 
     params = {'objective': 'binary',
               'boosting': 'gbdt',
@@ -86,6 +86,21 @@ def train_func(train_path, test_path, save_path):
     print('Valid F1: ', f1_score(y_valid, y_valid_pred))
     print('Valid mean label: ', np.mean(y_valid_pred))
 
+    params = {'objective': 'binary',
+              'boosting': 'gbdt',
+              'metric': 'auc',
+              # 'metric': 'None',  # 用自定义评估函数是将metric设置为'None'
+              # 'num_boost_round': 1000000,
+              'learning_rate': 0.1,
+              'num_leaves': 31,
+              'lambda_l1': 0,
+              'lambda_l2': 1,
+              'num_threads': 23,
+              'min_data_in_leaf': 20,
+              'first_metric_only': True,
+              'is_unbalance': True,
+              'max_depth': -1,
+              'seed': 2020}
     train_model = lgb.train(params,
                             all_dataset,
                             num_boost_round=valid_model.best_iteration+100)
@@ -93,7 +108,7 @@ def train_func(train_path, test_path, save_path):
 
     print('Test mean label: ', np.mean(y_test_pred))
     sub['label'] = y_test_pred
-    sub.to_csv(save_path + '大数据队_eta_submission_1012.csv', index=False)
+    sub.to_csv(save_path + '机器不学习原子弹也不学习_eta_submission_1012.csv', index=False)
 
 
 if __name__ == '__main__':
