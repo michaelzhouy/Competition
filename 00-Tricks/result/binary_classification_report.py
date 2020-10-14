@@ -10,17 +10,12 @@ pd.set_option('max_rows', None)
 
 def binary_classification_report(y_true, y_pred, qlist=None, cum=True):
     """
-
-    Parameters
-    ----------
-    y_true
-    y_pred
-    qlist
-    cum
-
-    Returns
-    -------
-
+    计算各个深度的命中率P和召回率R
+    @param y_true:
+    @param y_pred:
+    @param qlist:
+    @param cum:
+    @return:
     """
     if isinstance(y_true, pd.Series):
         y_true = y_true.values
