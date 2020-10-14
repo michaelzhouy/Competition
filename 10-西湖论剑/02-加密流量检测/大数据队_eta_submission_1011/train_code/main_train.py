@@ -94,7 +94,20 @@ def train_func(train_path, test_path, save_path):
                             valid_sets=[train_dataset, valid_dataset],
                             early_stopping_rounds=200,
                             verbose_eval=300)
-    y_valid_pred = np.where(valid_model.predict(X_valid) > 0.5, 1, 0)
+
+    pred = valid_model.predict(X_valid)
+
+    f1_best = 0
+    for i in np.arange(0.1, 1, 0.01):
+        y_valid_pred = np.where(pred > i, 1, 0)
+        f1 = np.round(f1_score(y_valid, y_valid_pred), 5)
+        #         print('f1: ', f1)
+        if f1 > f1_best:
+            threshold = i
+            f1_best = f1
+
+    print('threshold: ', threshold)
+    y_valid_pred = np.where(pred > threshold, 1, 0)
     print('Valid F1: ', np.round(f1_score(y_valid, y_valid_pred), 5))
     print('Valid mean label: ', np.mean(y_valid_pred))
 
@@ -115,12 +128,12 @@ def train_func(train_path, test_path, save_path):
               'seed': 2020}
     train_model = lgb.train(params,
                             all_dataset,
-                            num_boost_round=valid_model.best_iteration+100)
-    y_test_pred = np.where(train_model.predict(X_test) > 0.5, 1, 0)
+                            num_boost_round=valid_model.best_iteration+20)
+    y_test_pred = np.where(train_model.predict(X_test) > threshold, 1, 0)
 
     print('Test mean label: ', np.mean(y_test_pred))
     sub['label'] = y_test_pred
-    sub.to_csv(save_path + '机器不学习原子弹也不学习_eta_submission_1012.csv', index=False)
+    sub.to_csv(save_path + '机器不学习原子弹也不学习_eta_submission_1014.csv', index=False)
 
 
 if __name__ == '__main__':
