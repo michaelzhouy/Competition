@@ -201,6 +201,68 @@ def cross_cat_num(df, cat_col, num_col):
     return df
 
 
+def correlation(df, threshold=0.98):
+    """
+    特征相关性计算
+    col_corr = correlation(x_train, 0.98)
+    print(col_corr)
+    x_train.drop(list(col_corr), axis=1, inplace=True)
+    x_test.drop(list(col_corr), axis=1, inplace=True)
+    @param df:
+    @param threshold:
+    @return:
+    """
+    col_corr = set()
+    corr_matrix = df.corr()
+    for i in range(len(corr_matrix.columns)):
+        for j in range(i):
+            if abs(corr_matrix.iloc[i, j]) > threshold:
+                colName = corr_matrix.columns[i]
+                col_corr.add(colName)
+    return col_corr
+
+
+for f1 in tqdm(cross_features):
+    for f2 in cross_features:
+        if f1 != f2:
+            # colname_substract = '{}_{}_subtract'.format(f1, f2)
+            colname_add = '{}_{}_add'.format(f1, f2)
+            colname_multiply = '{}_{}_multyply'.format(f1, f2)
+            colname_ratio = '{}_{}_ratio'.format(f1, f2)
+
+            # data_df[colname_substract] = data_df[f1].values - data_df[f2].values
+            data_df[colname_add] = data_df[f1].values + data_df[f2].values
+            data_df[colname_multiply] = data_df[f1].values / (data_df[f2].values + 0.001)
+            data_df[colname_ratio] = data_df[f1].values * data_df[f2].values
+
+
+# 离散化
+for f in ['outdoorTemp', 'outdoorHum', 'outdoorAtmo', 'indoorHum', 'indoorAtmo']:
+    data_df[f + '_20_bin'] = pd.cut(data_df[f], 20, duplicates='drop').apply(lambda x: x.left).astype(int)
+    data_df[f + '_50_bin'] = pd.cut(data_df[f], 50, duplicates='drop').apply(lambda x: x.left).astype(int)
+    data_df[f + '_100_bin'] = pd.cut(data_df[f], 100, duplicates='drop').apply(lambda x: x.left).astype(int)
+    data_df[f + '_200_bin'] = pd.cut(data_df[f], 200, duplicates='drop').apply(lambda x: x.left).astype(int)
+
+
+for f1 in tqdm(['{}_20_bin'.format(i) for i in numerical_features] +
+               ['{}_50_bin'.format(i) for i in numerical_features] +
+               ['{}_100_bin'.format(i) for i in numerical_features] +
+               ['{}_200_bin'.format(i) for i in numerical_features]):
+    for f2 in numerical_features:
+        tmp = data_df.groupby(f1, as_index=False)[f2].agg({
+            '{}_{}_medi'.format(f1, f2): 'median',
+            '{}_{}_mean'.format(f1, f2): 'mean',
+            '{}_{}_max'.format(f1, f2): 'max',
+            '{}_{}_min'.format(f1, f2): 'min',
+            '{}_{}_sum'.format(f1, f2): 'sum',
+            '{}_{}_std'.format(f1, f2): 'std',
+            '{}_{}_skew'.format(f1, f2): 'skew'
+        })
+        data_df = data_df.merge(tmp, on=f1, how='left')
+        del tmp
+        gc.collect()
+
+
 # groupby
 gb = df.groupby(['user_id', 'page_id'], ax_index=False).agg(
     {'ad_price': {'max_price': np.max, 'min_price': np.min}})
