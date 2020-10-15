@@ -20,7 +20,7 @@ def correlation(df, threshold=0.98):
     return col_corr
 
 
-# 调用
+# 食用方法
 col_corr = correlation(train, 0.98)
 print(col_corr)
 train.drop(list(col_corr), axis=1, inplace=True)
