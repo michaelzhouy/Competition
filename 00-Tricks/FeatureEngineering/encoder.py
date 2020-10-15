@@ -77,7 +77,7 @@ def cross_cat_num(df, cat_col, num_col):
     return df
 
 
-def cross_num(df, cross_features):
+def arithmetic(df, cross_features):
     """
     数值特征之间的加减乘除
     @param df:
