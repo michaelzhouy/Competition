@@ -5,7 +5,7 @@
 import pandas as pd
 
 
-def overfit_reducer(df, threshold):
+def overfit_reducer(df, threshold=99.9):
     """
     计算每列中取值的分布，返回单一值占比达到阈值的列名
     @param df:
@@ -16,7 +16,7 @@ def overfit_reducer(df, threshold):
     for i in df.columns:
         counts = df[i].value_counts()
         zeros = counts.iloc[0]
-        if zeros / len(df) * 100 > 99.94:
+        if zeros / len(df) * 100 > threshold:
             overfit.append(i)
     return overfit
 
