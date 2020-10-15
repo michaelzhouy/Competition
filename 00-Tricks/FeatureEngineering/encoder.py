@@ -89,7 +89,6 @@ def cross_num(df, cross_features):
             colname_add = '{}_{}_add'.format(cross_features[i], cross_features[j])
             colname_substract = '{}_{}_subtract'.format(cross_features[i], cross_features[j])
             colname_multiply = '{}_{}c_multiply'.format(cross_features[i], cross_features[j])
-
             df[colname_add] = df[cross_features[i]] + df[cross_features[j]]
             df[colname_substract] = df[cross_features[i]] - df[cross_features[j]]
             df[colname_multiply] = df[cross_features[i]] * df[cross_features[j]]
@@ -98,6 +97,5 @@ def cross_num(df, cross_features):
         for f2 in cross_features:
             if f1 != f2:
                 colname_ratio = '{}_{}_ratio'.format(f1, f2)
-
                 df[colname_ratio] = df[f1].values / (df[f2].values + 0.001)
     return df
