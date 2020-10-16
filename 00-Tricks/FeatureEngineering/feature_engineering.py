@@ -31,8 +31,6 @@ df_numerical = df.select_dtypes(exclude=['object'])
 df.groupby('uid')['time'].rank('dense')
 
 
-
-
 # groupby
 gb = df.groupby(['user_id', 'page_id'], ax_index=False).agg(
     {'ad_price': {'max_price': np.max, 'min_price': np.min}})
@@ -60,8 +58,6 @@ tmp = df_voc.groupby('phone_no_m')['voc_day'].agg(voc_day_mode=lambda x: stats.m
                                                   voc_day_nunique='nunique')
 phone_no_m = phone_no_m.merge(tmp, on='phone_no_m', how='left')
 
-del tmp
-gc.collect()
 
 # 每天的通话次数
 voc_day_cnt_res = df_voc.groupby(['phone_no_m', 'voc_day'])['phone_no_m'].count().unstack()
