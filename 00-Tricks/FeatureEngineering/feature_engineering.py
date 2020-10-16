@@ -30,10 +30,7 @@ df_numerical = df.select_dtypes(exclude=['object'])
 # 分组排名
 df.groupby('uid')['time'].rank('dense')
 
-# 根据时间划分训练集、验证集和测试集
-train = df.loc[df['observe_date'] < '2019-11-04', :]
-valid = df.loc[(df['observe_date'] >= '2019-11-04') & (df['observe_date'] <= '2019-12-04'), :]
-test = df.loc[df['observe_date'] > '2020-01-04', :]
+
 
 
 # groupby

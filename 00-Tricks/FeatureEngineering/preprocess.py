@@ -30,3 +30,9 @@ def missing_percentage(df):
     total = df.isnull().sum().sort_values(ascending=False)[df.isnull().sum().sort_values(ascending=False) != 0]
     percent = round(df.isnull().sum().sort_values(ascending=False) / len(df) * 100, 2)[round(df.isnull().sum().sort_values(ascending=False) / len(df) * 100, 2) != 0]
     return pd.concat([total, percent], axis=1, keys=['Total', 'Percent'])
+
+
+# 根据时间划分训练集、验证集和测试集
+train = df.loc[df['observe_date'] < '2019-11-04', :]
+valid = df.loc[(df['observe_date'] >= '2019-11-04') & (df['observe_date'] <= '2019-12-04'), :]
+test = df.loc[df['observe_date'] > '2020-01-04', :]
