@@ -3,6 +3,7 @@
 # @Author   : Michael_Zhouy
 
 import pandas as pd
+import datetime
 
 
 def overfit_reducer(df, threshold=99.9):
@@ -30,6 +31,22 @@ def missing_percentage(df):
     total = df.isnull().sum().sort_values(ascending=False)[df.isnull().sum().sort_values(ascending=False) != 0]
     percent = round(df.isnull().sum().sort_values(ascending=False) / len(df) * 100, 2)[round(df.isnull().sum().sort_values(ascending=False) / len(df) * 100, 2) != 0]
     return pd.concat([total, percent], axis=1, keys=['Total', 'Percent'])
+
+
+def timestamp2string(timeStamp):
+    """
+    将时间戳转换为str对象
+    @param timeStamp:
+    @return:
+    """
+    try:
+        d = datetime.datetime.fromtimestamp(timeStamp)
+        str1 = d.strftime("%Y-%m-%d %H:%M:%S.%f")
+        # 2015-08-28 16:43:37.283000'
+        return str1
+    except Exception as e:
+        print(e)
+        return ''
 
 
 # 根据时间划分训练集、验证集和测试集
