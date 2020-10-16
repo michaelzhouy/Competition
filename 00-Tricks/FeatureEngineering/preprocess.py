@@ -49,6 +49,11 @@ def timestamp2string(timeStamp):
         return ''
 
 
+# 每个日期的日期和周次
+data['hour'] = data['start_time'].map(lambda x: int(str(x)[11: 13]))
+data['weekday'] = data['start_time'].map(lambda x: x.weekday())
+
+
 # 根据时间划分训练集、验证集和测试集
 train = df.loc[df['observe_date'] < '2019-11-04', :]
 valid = df.loc[(df['observe_date'] >= '2019-11-04') & (df['observe_date'] <= '2019-12-04'), :]
