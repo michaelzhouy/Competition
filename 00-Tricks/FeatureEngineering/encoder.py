@@ -3,6 +3,7 @@
 # @Author   : Michael_Zhouy
 
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 import gc
 
@@ -108,3 +109,15 @@ def arithmetic(df, cross_features):
                 colname_ratio = '{}_{}_ratio'.format(f1, f2)
                 df[colname_ratio] = df[f1].values / (df[f2].values + 0.001)
     return df
+
+
+def discretization(df, num_cols):
+    """
+    数值特征离散化
+    @param df:
+    @param num_cols:
+    @return:
+    """
+    for f in num_cols:
+        for bin in [20, 50, 100, 200]:
+            df['{}_{}_bin'.format(f, bin)] = pd.cut(df[f], bin, duplicates='drop').apply(lambda x: x.left).astype(int)
