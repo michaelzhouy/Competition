@@ -59,20 +59,29 @@ def cross_cat_num(df, cat_col, num_col):
     @param num_col: 数值特征
     @return:
     """
+    def max_min(s):
+        return s.max() - s.min()
+    def quantile(s, q=0.25):
+        return s.quantile(q)
     for f1 in tqdm(cat_col):
         g = df.groupby(f1, as_index=False)
         for f2 in tqdm(num_col):
-            df_new = g[f2].agg({
+            tmp = g[f2].agg({
+                '{}_{}_count'.format(f1, f2): 'count',
                 '{}_{}_max'.format(f1, f2): 'max',
                 '{}_{}_min'.format(f1, f2): 'min',
                 '{}_{}_median'.format(f1, f2): 'median',
                 '{}_{}_mean'.format(f1, f2): 'mean',
                 '{}_{}_sum'.format(f1, f2): 'sum',
                 '{}_{}_skew'.format(f1, f2): 'skew',
-                '{}_{}_nunique'.format(f1, f2): 'nunique'
+                '{}_{}_std'.format(f1, f2): 'std',
+                '{}_{}_nunique'.format(f1, f2): 'nunique',
+                '{}_{}_max_min'.format(f1, f2): max_min,
+                '{}_{}_quantile_25'.format(f1, f2): lambda x: quantile(x, 0.25),
+                '{}_{}_quantile_75'.format(f1, f2): lambda x: quantile(x, 0.75)
             })
-            df = df.merge(df_new, on=f1, how='left')
-            del df_new
+            df = df.merge(tmp, on=f1, how='left')
+            del tmp
             gc.collect()
     return df
 
