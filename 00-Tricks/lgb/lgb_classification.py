@@ -168,8 +168,8 @@ def lgb_5_folds(X, y, X_test, sub, save_path='./', oof=[], imp_list=[]):
     @return:
     """
     prediction = pd.DataFrame()
-    kfold = StratifiedKFold(n_splits=5)
-    for fold_id, (trn_idx, val_idx) in enumerate(kfold.split(X, y)):
+    skf = StratifiedKFold(n_splits=5, random_state=2020, shuffle=True)
+    for fold_id, (trn_idx, val_idx) in enumerate(skf.split(X, y)):
         print('\nFold_{} Training ==============\n'.format(fold_id + 1))
         X_train = X.iloc[trn_idx]
         Y_train = y.iloc[trn_idx]
