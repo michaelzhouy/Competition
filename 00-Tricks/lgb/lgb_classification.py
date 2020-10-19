@@ -165,6 +165,8 @@ def lgb_5_folds(X, y, X_test, sub, save_path='./', oof=[], imp_list=[]):
     @param X_test:
     @param sub:
     @param save_path:
+    @param oof:
+    @param imp_list:
     @return:
     """
     prediction = pd.DataFrame()
