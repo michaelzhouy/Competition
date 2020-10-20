@@ -51,12 +51,34 @@ def timestamp2string(timeStamp):
         return ''
 
 
-# 每个日期的日期和周次
-data['hour'] = data['start_time'].map(lambda x: int(str(x)[11: 13]))
-data['weekday'] = data['start_time'].map(lambda x: x.weekday())
+def get_datetime(df, time_col, type='hour'):
+    """
+    获取年、月、日、小时等
+    @param df:
+    @param time_col:
+    @param type: 'hour' 'day' 'month' 'year' 'weekday'
+    @return:
+    """
+    if type == 'hour':
+        df['hour'] = df[time_col].map(lambda x: int(str(x)[11: 13]))
+    elif type == 'day':
+        df['day'] = df[time_col].map(lambda x: int(str(x)[8: 10]))
+    elif type == 'month':
+        df['month'] = df[time_col].map(lambda x: int(str(x)[5: 7]))
+    elif type == 'year':
+        df['year'] = df[time_col].map(lambda x: int(str(x)[0: 4]))
+    elif type == 'weekday':
+        df['weekday'] = df['start_time'].map(lambda x: x.weekday())
+    return df
 
 
-# 根据时间划分训练集、验证集和测试集
-train = df.loc[df['observe_date'] < '2019-11-04', :]
-valid = df.loc[(df['observe_date'] >= '2019-11-04') & (df['observe_date'] <= '2019-12-04'), :]
-test = df.loc[df['observe_date'] > '2020-01-04', :]
+def time_split(df):
+    """
+    根据时间划分训练集、验证集和测试集
+    @param df:
+    @return:
+    """
+    train = df.loc[df['observe_date'] < '2019-11-04', :]
+    valid = df.loc[(df['observe_date'] >= '2019-11-04') & (df['observe_date'] <= '2019-12-04'), :]
+    test = df.loc[df['observe_date'] > '2020-01-04', :]
+    return train, valid, test
