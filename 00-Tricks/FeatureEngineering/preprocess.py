@@ -67,7 +67,7 @@ def get_datetime(df, time_col, type='hour'):
     elif type == 'year':
         df['year'] = df[time_col].map(lambda x: int(str(x)[0: 4]))
     elif type == 'weekday':
-        df['weekday'] = df['start_time'].map(lambda x: x.weekday())
+        df['weekday'] = df[time_col].map(lambda x: x.weekday())
     return df
 
 
