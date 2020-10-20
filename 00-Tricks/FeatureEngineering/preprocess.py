@@ -43,8 +43,6 @@ def timestamp2string(timeStamp):
         d = datetime.datetime.fromtimestamp(timeStamp)
         # str类型
         str = d.strftime('%Y-%m-%d %H:%M:%S.%f')
-        # datetime类型
-        # str = datetime.datetime.strptime(str, '%Y-%m-%d %H:%M:%S.%f')
         return str
     except Exception as e:
         print(e)
