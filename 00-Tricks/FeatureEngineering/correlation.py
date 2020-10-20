@@ -27,12 +27,13 @@ train.drop(list(col_corr), axis=1, inplace=True)
 test.drop(list(col_corr), axis=1, inplace=True)
 
 
-def correlation(df, threshold):
+def correlation(df, useful_cols, threshold):
     """
     去除特征相关系数大于阈值的特征
-    :param df:
-    :param threshold:
-    :return:
+    @param df:
+    @param useful_cols:
+    @param threshold:
+    @return:
     """
     col_corr = set()
     corr_matrix = df.corr()
