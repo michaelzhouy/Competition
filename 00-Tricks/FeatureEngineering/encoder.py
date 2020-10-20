@@ -52,7 +52,7 @@ def label_encode(df, cols, verbose=True):
             print(col)
 
 
-def cross_cat_num(df, cat_col, num_col):
+def cross_cat_num(df, cat_cols, num_cols):
     """
     类别特征与数据特征groupby统计
     @param df:
@@ -64,9 +64,9 @@ def cross_cat_num(df, cat_col, num_col):
         return s.max() - s.min()
     def quantile(s, q=0.25):
         return s.quantile(q)
-    for f1 in tqdm(cat_col):
+    for f1 in tqdm(cat_cols):
         g = df.groupby(f1, as_index=False)
-        for f2 in tqdm(num_col):
+        for f2 in tqdm(num_cols):
             tmp = g[f2].agg({
                 '{}_{}_count'.format(f1, f2): 'count',
                 '{}_{}_max'.format(f1, f2): 'max',
