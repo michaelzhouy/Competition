@@ -96,13 +96,12 @@ def auc_select(X_train, y_train, X_valid, y_valid, cols, threshold=0.52):
     @param cols:
     @return:
     """
-    useful_cols = []
-    useless_cols = []
+    useful_dict = dict()
+    useless_dict = dict()
     params = {
         'objective': 'binary',
         'boosting': 'gbdt',
         'metric': 'auc',
-        # 'metric': 'None',  # 用自定义评估函数是将metric设置为'None'
         'learning_rate': 0.1,
         'num_leaves': 31,
         'lambda_l1': 0,
@@ -118,7 +117,7 @@ def auc_select(X_train, y_train, X_valid, y_valid, cols, threshold=0.52):
         print(i)
         lgb_train = lgb.Dataset(X_train[[i]].values, y_train)
         lgb_valid = lgb.Dataset(X_valid[[i]].values, y_valid, reference=lgb_train)
-        lgb_test = lgb.train(
+        lgb_model = lgb.train(
             params,
             lgb_train,
             valid_sets=[lgb_valid, lgb_train],
@@ -127,12 +126,12 @@ def auc_select(X_train, y_train, X_valid, y_valid, cols, threshold=0.52):
             verbose_eval=20
         )
         print('*' * 10)
-        print(lgb_test.best_score['valid_0']['auc'])
-        if lgb_test.best_score['valid_0']['auc'] > threshold:
-            useful_cols.append(i)
+        print(lgb_model.best_score['valid_0']['auc'])
+        if lgb_model.best_score['valid_0']['auc'] > threshold:
+            useful_dict[i] = lgb_model.best_score['valid_0']['auc']
         else:
-            useless_cols.append(i)
-    return useful_cols, useless_cols
+            useless_dict[i] = lgb_model.best_score['valid_0']['auc']
+    return useful_dict, useless_dict
 
 
 def correlation(df, useful_cols, threshold=0.98):
