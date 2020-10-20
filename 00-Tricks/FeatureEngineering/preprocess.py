@@ -57,6 +57,7 @@ def get_datetime(df, time_col, type='hour'):
     @param type: 'hour' 'day' 'month' 'year' 'weekday'
     @return:
     """
+    df[time_col] = pd.to_datetime(df[time_col])
     if type == 'hour':
         df['hour'] = df[time_col].map(lambda x: int(str(x)[11: 13]))
     elif type == 'day':
