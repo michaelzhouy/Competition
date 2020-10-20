@@ -136,12 +136,12 @@ def auc_select(X_train, y_train, X_valid, y_valid, cols, threshold=0.52):
     return useful_dict, useless_dict, useful_cols, useless_cols
 
 
-def correlation(df, useful_cols, threshold=0.98):
+def correlation(df, useful_dict, threshold=0.98):
     """
     去除特征相关系数大于阈值的特征
     @param df:
     @param threshold:
-    @param useful_cols:
+    @param useful_dict:
     @return:
     """
     col_corr = set()
@@ -151,7 +151,7 @@ def correlation(df, useful_cols, threshold=0.98):
             if abs(corr_matrix.iloc[i, j]) > threshold:
                 colName_i = corr_matrix.columns[i]
                 colName_j = corr_matrix.columns[j]
-                if useful_cols[colName_i] >= useful_cols[colName_j]:
+                if useful_dict[colName_i] >= useful_dict[colName_j]:
                     col_corr.add(colName_j)
                 else:
                     col_corr.add(colName_i)
