@@ -131,7 +131,9 @@ def auc_select(X_train, y_train, X_valid, y_valid, cols, threshold=0.52):
             useful_dict[i] = lgb_model.best_score['valid_0']['auc']
         else:
             useless_dict[i] = lgb_model.best_score['valid_0']['auc']
-    return useful_dict, useless_dict
+    useful_cols = list(useful_dict.keys())
+    useless_cols = list(useless_dict.keys())
+    return useful_dict, useless_dict, useful_cols, useless_cols
 
 
 def correlation(df, useful_cols, threshold=0.98):
