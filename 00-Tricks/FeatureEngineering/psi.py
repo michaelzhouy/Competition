@@ -9,7 +9,7 @@ from tqdm import tqdm
 from joblib import Parallel, delayed
 
 
-def get_psi(c):
+def get_psi(c, x_train, x_test):
     psi_res = pd.DataFrame()
     psi_dict={}
     # for c in tqdm(f_cols):
@@ -46,7 +46,8 @@ def get_psi(c):
 
 
 # 调用方法
-psi_res = Parallel(n_jobs=4)(delayed(get_psi)(c) for c in tqdm(features))
+psi_res = Parallel(n_jobs=4)(delayed(get_psi)(c, train, test) for c in tqdm(features))
 psi_df = pd.concat(psi_res)
-features = list(psi_df[psi_df['PSI'] <= 0.2]['变量名'].values)
-
+used_cols = list(psi_df[psi_df['PSI'] <= 0.2]['变量名'].values)
+not_used_cols = list(psi_df[psi_df['PSI'] > 0.2]['变量名'].values)
+print('PSI drop features: \n', not_used_cols)
