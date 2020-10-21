@@ -5,7 +5,7 @@
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-import pickleshare
+import pickle
 import gc
 
 
@@ -73,11 +73,11 @@ def train_test_label_encode(df, cat_col, type='save', path='./'):
     """
     def save_obj(obj, name):
         with open(name + '.pkl', 'wb') as f:
-            pickleshare.dump(obj, f)
+            pickle.dump(obj, f)
 
     def load_obj(name):
         with open(name + '.pkl', 'rb') as f:
-            return pickleshare.load(f)
+            return pickle.load(f)
 
     if type == 'save':
         print(cat_col)
