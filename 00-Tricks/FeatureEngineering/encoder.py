@@ -53,11 +53,11 @@ def label_encode(df, cols, verbose=True):
             print(col)
 
 
-def train_test_label_encode(df, cols, type='save'):
+def train_test_label_encode(df, cat_col, type='save'):
     """
     train和test分开label encode
     @param df:
-    @param cols:
+    @param cat_col:
     @param type: 'save' 'load'
     @return:
     """
@@ -69,14 +69,15 @@ def train_test_label_encode(df, cols, type='save'):
         with open(name + '.pkl', 'rb') as f:
             return pickleshare.load(f)
 
-    for i in cols:
-        print(i)
-        if type == 'save':
-            d = dict(zip(df[i].unique(), range(df[i].nunique())))
-            save_obj(d, i)
-        elif type == 'load':
-            d = load_obj(i)
-            return d
+    if type == 'save':
+        print(cat_col)
+        d = dict(zip(df[cat_col].unique(), range(df[cat_col].nunique())))
+        df[cat_col] = df[cat_col].map(d)
+        save_obj(d, cat_col)
+        return df
+    elif type == 'load':
+        d = load_obj(cat_col)
+        return d
 
 
 def cross_cat_num(df, cat_cols, num_cols):
