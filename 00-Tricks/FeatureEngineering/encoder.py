@@ -5,6 +5,7 @@
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import pickleshare
 import gc
 
 
@@ -52,6 +53,32 @@ def label_encode(df, cols, verbose=True):
             print(col)
 
 
+def train_test_label_encode(df, cols, type='save'):
+    """
+    train和test分开label encode
+    @param df:
+    @param cols:
+    @param type: 'save' 'load'
+    @return:
+    """
+    def save_obj(obj, name):
+        with open(name + '.pkl', 'wb') as f:
+            pickleshare.dump(obj, f)
+
+    def load_obj(name):
+        with open(name + '.pkl', 'rb') as f:
+            return pickleshare.load(f)
+
+    for i in cols:
+        print(i)
+        if type == 'save':
+            d = dict(zip(df[i].unique(), range(df[i].nunique())))
+            save_obj(d, i)
+        elif type == 'load':
+            d = load_obj(i)
+            return d
+
+
 def cross_cat_num(df, cat_cols, num_cols):
     """
     类别特征与数据特征groupby统计
@@ -62,8 +89,10 @@ def cross_cat_num(df, cat_cols, num_cols):
     """
     def max_min(s):
         return s.max() - s.min()
+
     def quantile(s, q=0.25):
         return s.quantile(q)
+
     for f1 in tqdm(cat_cols):
         g = df.groupby(f1, as_index=False)
         for f2 in tqdm(num_cols):
