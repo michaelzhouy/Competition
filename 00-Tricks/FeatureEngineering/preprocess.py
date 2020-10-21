@@ -57,18 +57,16 @@ def get_datetime(df, time_col, type='hour'):
     @param type: 'hour' 'day' 'month' 'year' 'weekday'
     @return:
     """
-    df[time_col + '_datetime'] = pd.to_datetime(df[time_col])
     if type == 'hour':
-        df['hour'] = df[time_col + '_datetime'].map(lambda x: int(str(x)[11: 13]))
+        df['hour'] = df[time_col].map(lambda x: int(str(x)[11: 13]))
     elif type == 'day':
-        df['day'] = df[time_col + '_datetime'].map(lambda x: int(str(x)[8: 10]))
+        df['day'] = df[time_col].map(lambda x: int(str(x)[8: 10]))
     elif type == 'month':
-        df['month'] = df[time_col + '_datetime'].map(lambda x: int(str(x)[5: 7]))
+        df['month'] = df[time_col].map(lambda x: int(str(x)[5: 7]))
     elif type == 'year':
-        df['year'] = df[time_col + '_datetime'].map(lambda x: int(str(x)[0: 4]))
+        df['year'] = df[time_col].map(lambda x: int(str(x)[0: 4]))
     elif type == 'weekday':
-        df['weekday'] = df[time_col + '_datetime'].map(lambda x: x.weekday())
-    del df[time_col + '_datetime']
+        df['weekday'] = pd.to_datetime(df[time_col]).map(lambda x: x.weekday())
     return df
 
 
