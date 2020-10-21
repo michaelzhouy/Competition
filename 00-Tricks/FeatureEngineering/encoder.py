@@ -53,12 +53,22 @@ def label_encode(df, cols, verbose=True):
             print(col)
 
 
-def train_test_label_encode(df, cat_col, type='save'):
+def train_test_label_encode(df, cat_col, type='save', path=None):
     """
     train和test分开label encode
+    save的食用方法
+    for i in cat_cols:
+        train = train_test_label_encode(train, i, 'save', './')
+        train[i] = train[i].astype('category')
+    load的食用方法：
+    for i in cat_cols:
+        d = train_test_label_encode(test, i, 'load', '../train_code/')
+        test[i] = test[i].map(d)
+        test[i] = test[i].astype('category')
     @param df:
     @param cat_col:
     @param type: 'save' 'load'
+    @param path:
     @return:
     """
     def save_obj(obj, name):
@@ -73,10 +83,10 @@ def train_test_label_encode(df, cat_col, type='save'):
         print(cat_col)
         d = dict(zip(df[cat_col].unique(), range(df[cat_col].nunique())))
         df[cat_col] = df[cat_col].map(d)
-        save_obj(d, cat_col)
+        np.save(path + '{}.npy'.format(cat_col), d)
         return df
     elif type == 'load':
-        d = load_obj(cat_col)
+        d = np.load(path + '{}.npy'.format(cat_col)).items()
         return d
 
 
