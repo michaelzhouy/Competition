@@ -7,6 +7,12 @@ import pandas as pd
 from tqdm import tqdm
 import pickle
 import gc
+from sklearn.preprocessing import LabelEncoder
+
+
+le = LabelEncoder()
+le.fit(X)
+le_dict = dict(zip(le.classes_, le.transform(le.classes_)))
 
 
 def low_freq_encode(df, cat_cols, freq=2):
