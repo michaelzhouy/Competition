@@ -53,7 +53,7 @@ def label_encode(df, cols, verbose=True):
             print(col)
 
 
-def train_test_label_encode(df, cat_col, type='save', path=None):
+def train_test_label_encode(df, cat_col, type='save', path='./'):
     """
     train和test分开label encode
     save的食用方法
