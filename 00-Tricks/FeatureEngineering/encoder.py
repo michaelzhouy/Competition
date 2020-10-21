@@ -86,7 +86,7 @@ def train_test_label_encode(df, cat_col, type='save', path=None):
         np.save(path + '{}.npy'.format(cat_col), d)
         return df
     elif type == 'load':
-        d = np.load(path + '{}.npy'.format(cat_col)).items()
+        d = np.load(path + '{}.npy'.format(cat_col), allow_pickle=True).item()
         return d
 
 
