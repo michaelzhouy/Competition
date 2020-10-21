@@ -155,7 +155,7 @@ def correlation(df, useful_dict, threshold=0.98):
                     col_corr.add(colName_j)
                 else:
                     col_corr.add(colName_i)
-    return col_corr
+    return list(col_corr)
 
 
 def lgb_5_folds(X, y, X_test, sub, save_path='./', oof=[], imp_list=[]):
