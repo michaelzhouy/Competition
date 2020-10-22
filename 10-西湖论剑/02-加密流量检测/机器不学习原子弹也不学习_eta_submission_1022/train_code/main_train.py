@@ -4,24 +4,26 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
 import lightgbm as lgb
-import joblib
 
 
-# def count_encode(df, cols=[]):
-#     """
-#     count编码
-#     @param df:
-#     @param cols:
-#     @return:
-#     """
-#     for col in cols:
-#         print(col)
-#         vc = df[col].value_counts(dropna=True, normalize=True)
-#         df[col + '_count'] = df[col].map(vc).astype('float32')
-#     return df
+def count_encode(df, cols=[], path='./'):
+    """
+    count编码
+    @param df:
+    @param cols:
+    @param path:
+    @return:
+    """
+    for col in cols:
+        print(col)
+        vc = df[col].value_counts(dropna=True, normalize=True)
+        df[col + '_count'] = df[col].map(vc.to_dict()).astype('float32')
+        print(vc.to_dict())
+        np.save(path + '{}_count.npy'.format(col), vc.to_dict())
+    return df
 
 
-def cross_cat_num(df, cat_col, num_col):
+def cross_cat_num(df, cat_col, num_col, path='./'):
     """
     类别特征与数据特征groupby统计
     @param df:
@@ -51,6 +53,7 @@ def cross_cat_num(df, cat_col, num_col):
                 '{}_{}_quantile_75'.format(f1, f2): lambda x: quantile(x, 0.75)
             })
             df = df.merge(tmp, on=f1, how='left')
+            tmp.to_csv(path + '{}_{}.csv'.format(f1, f2), index=False)
     return df
 
 
@@ -190,32 +193,11 @@ def correlation(df, useful_dict, threshold=0.98):
 def train_func(train_path):
     # 请填写训练代码
     train = pd.read_csv(train_path)
+    drop_cols = ['appProtocol', 'srcAddress', 'destAddress', 'tlsSubject', 'tlsIssuerDn', 'tlsSni', 'srcPort', 'destPort']
+    train.drop(drop_cols, axis=1, inplace=True)
 
-    single_cols = ['appProtocol']
-    train.drop(single_cols, axis=1, inplace=True)
-
-    cat_cols = ['srcAddress', 'destAddress',
-                'tlsVersion', 'tlsSubject', 'tlsIssuerDn', 'tlsSni']
-
-    train['srcAddressPort'] = train['srcAddress'].astype(str) + train['srcPort'].astype(str)
-    train['destAddressPort'] = train['destAddress'].astype(str) + train['destPort'].astype(str)
-
-    str_cols = ['srcAddress', 'destAddress', 'srcAddressPort', 'destAddressPort']
-    count_nunique = {}
-    for i in str_cols:
-        for j in str_cols:
-            if j == i:
-                continue
-            tr = train[i].groupby(train[j]).agg(['count', 'nunique'])
-            train['{}_gp_{}_count'.format(i, j)] = train[j].map(tr['count'])
-            train['{}_gp_{}_nunique'.format(i, j)] = train[j].map(tr['nunique'])
-            count_nunique['{}_gp_{}'.format(i, j)] = tr
-            train['{}_gp_{}_nunique_rate'.format(i, j)] = (train['{}_gp_{}_nunique'.format(i, j)]
-                                                           / train['{}_gp_{}_count'.format(i, j)])
-            train.drop(['{}_gp_{}_count'.format(i, j), '{}_gp_{}_nunique'.format(i, j)], axis=1, inplace=True)
-    # joblib.dump(res, './res.pkl')
-    # joblib.load('./res.pkl)
-    joblib.dump(count_nunique, './count_nunique.pkl')
+    # train['srcAddressPort'] = train['srcAddress'].astype(str) + train['srcPort'].astype(str)
+    # train['destAddressPort'] = train['destAddress'].astype(str) + train['destPort'].astype(str)
 
     # # srcAddress To destAddress
     # tmp = train.groupby('srcAddress', as_index=False)['destAddress'].agg({
@@ -273,7 +255,19 @@ def train_func(train_path):
     # })
     # train = train.merge(tmp, on='destAddress', how='left')
 
-    tlsVersion_map = {
+    tlsVersion_map1 = {
+        'TLSv1': 1,
+        'TLS 1.2': 2,
+        'TLS 1.3': 3,
+        'SSLv2': 4,
+        'SSLv3': 5,
+        '0x4854': 6,
+        '0x4752': 6,
+        'UNDETERMINED': 7
+    }
+    train['tlsVersion1'] = train['tlsVersion'].map(tlsVersion_map1)
+
+    tlsVersion_map2 = {
         'TLSv1': 1,
         'TLS 1.2': 1,
         'TLS 1.3': 1,
@@ -283,56 +277,19 @@ def train_func(train_path):
         '0x4752': 4,
         'UNDETERMINED': 5
     }
-    train['tlsVersion_map'] = train['tlsVersion'].map(tlsVersion_map)
-    cat_cols.append('tlsVersion_map')
+    train['tlsVersion2'] = train['tlsVersion'].map(tlsVersion_map2)
+    cat_cols = ['tlsVersion1', 'tlsVersion2']
 
-    cat_cols += ['srcAddressPort', 'destAddressPort']
+    # cat_cols += ['srcAddressPort', 'destAddressPort']
     num_cols = ['bytesOut', 'bytesIn', 'pktsIn', 'pktsOut']
 
-    count_encode = {}
-    for col in cat_cols:
-        print(col)
-        vc = train[col].value_counts(dropna=True, normalize=True)
-        train[col + '_count'] = train[col].map(vc).astype('float32')
-        count_encode[col + '_count'] = vc
-    joblib.dump(count_encode, './count_encode.pkl')
-
-    def max_min(s):
-        return s.max() - s.min()
-    def quantile(s, q=0.25):
-        return s.quantile(q)
-
-    cross_encode = {}
-    for f1 in cat_cols:
-        for f2 in num_cols:
-            tmp = train.groupby(f1, as_index=False)[f2].agg({
-                '{}_{}_count'.format(f1, f2): 'count',
-                '{}_{}_max'.format(f1, f2): 'max',
-                '{}_{}_min'.format(f1, f2): 'min',
-                '{}_{}_median'.format(f1, f2): 'median',
-                '{}_{}_mean'.format(f1, f2): 'mean',
-                '{}_{}_sum'.format(f1, f2): 'sum',
-                '{}_{}_skew'.format(f1, f2): 'skew',
-                '{}_{}_std'.format(f1, f2): 'std',
-                '{}_{}_nunique'.format(f1, f2): 'nunique',
-                '{}_{}_max_min'.format(f1, f2): max_min,
-                '{}_{}_quantile_25'.format(f1, f2): lambda x: quantile(x, 0.25),
-                '{}_{}_quantile_75'.format(f1, f2): lambda x: quantile(x, 0.75)
-            })
-            train = train.merge(tmp, on=f1, how='left')
-            cross_encode['{}_stats_{}'.format(f1, f2)] = tmp
-    joblib.dump(cross_encode, './cross_encode.pkl')
-
     train = arithmetic(train, num_cols)
+    train = count_encode(train, cat_cols)
+    train = cross_cat_num(train, cat_cols, num_cols)
 
-    used_cols = [i for i in train.columns if i not in ['eventId', 'label']]
+    used_cols = [i for i in train.columns if i not in ['eventId', 'label', 'tlsVersion']]
     y = train['label']
     train = train[used_cols].copy()
-
-    psi_drop_cols = ['tlsSubject', 'destAddress', 'srcAddress', 'srcAddressPort', 'tlsIssuerDn', 'tlsSni',
-                     'tlsVersion_map', 'destAddressPort', 'tlsVersion']
-
-    train.drop(psi_drop_cols, axis=1, inplace=True)
 
     X_train, X_valid, y_train, y_valid = train_test_split(train, y, test_size=0.25, random_state=2020, stratify=y)
 
