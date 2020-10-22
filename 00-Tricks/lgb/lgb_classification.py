@@ -35,6 +35,7 @@ def lgb_model(X_train, y_train, X_valid=None, y_valid=None, valid_model_path='./
     @param y_train:
     @param X_valid:
     @param y_valid:
+    @param valid_model_path:
     @return:
     """
     params = {
@@ -94,6 +95,7 @@ def auc_select(X_train, y_train, X_valid, y_valid, cols, threshold=0.52):
     @param X_valid:
     @param y_valid:
     @param cols:
+    @param threshold:
     @return:
     """
     useful_dict = dict()
