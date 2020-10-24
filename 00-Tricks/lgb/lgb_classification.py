@@ -57,7 +57,7 @@ def lgb_model(X_train, y_train, X_valid=None, y_valid=None, valid_model_path='./
 
     train_dataset = lgb.Dataset(X_train, label=y_train)
     if X_valid != None:
-        valid_dataset = lgb.Dataset(X_valid, label=y_valid, reference=lgb_train)
+        valid_dataset = lgb.Dataset(X_valid, label=y_valid, reference=train_dataset)
         valid_model = lgb.train(
             params,
             train_dataset,
@@ -117,22 +117,25 @@ def auc_select(X_train, y_train, X_valid, y_valid, cols, threshold=0.52):
     }
     for i in cols:
         print(i)
-        lgb_train = lgb.Dataset(X_train[[i]].values, y_train)
-        lgb_valid = lgb.Dataset(X_valid[[i]].values, y_valid, reference=lgb_train)
-        lgb_model = lgb.train(
-            params,
-            lgb_train,
-            valid_sets=[lgb_valid, lgb_train],
-            num_boost_round=1000,
-            early_stopping_rounds=50,
-            verbose_eval=500
-        )
-        print('*' * 10)
-        print(lgb_model.best_score['valid_0']['auc'])
-        if lgb_model.best_score['valid_0']['auc'] > threshold:
-            useful_dict[i] = lgb_model.best_score['valid_0']['auc']
-        else:
-            useless_dict[i] = lgb_model.best_score['valid_0']['auc']
+        try:
+            lgb_train = lgb.Dataset(X_train[[i]].values, y_train)
+            lgb_valid = lgb.Dataset(X_valid[[i]].values, y_valid, reference=lgb_train)
+            lgb_model = lgb.train(
+                params,
+                lgb_train,
+                valid_sets=[lgb_valid, lgb_train],
+                num_boost_round=1000,
+                early_stopping_rounds=50,
+                verbose_eval=500
+            )
+            print('*' * 10)
+            print(lgb_model.best_score['valid_0']['auc'])
+            if lgb_model.best_score['valid_0']['auc'] > threshold:
+                useful_dict[i] = lgb_model.best_score['valid_0']['auc']
+            else:
+                useless_dict[i] = lgb_model.best_score['valid_0']['auc']
+        except:
+            print('Error: ', i)
     useful_cols = list(useful_dict.keys())
     useless_cols = list(useless_dict.keys())
     return useful_dict, useless_dict, useful_cols, useless_cols
