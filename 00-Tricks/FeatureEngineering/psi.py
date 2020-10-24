@@ -45,8 +45,10 @@ def get_psi(c, x_train, x_test):
 
 
 # 调用方法
-psi_res = Parallel(n_jobs=4)(delayed(get_psi)(c, train, test) for c in tqdm(features))
+psi_res = Parallel(n_jobs=4)(delayed(get_psi)(c, X, X_test) for c in used_cols)
 psi_df = pd.concat(psi_res)
-used_cols = list(psi_df[psi_df['PSI'] <= 0.2]['变量名'].values)
-not_used_cols = list(psi_df[psi_df['PSI'] > 0.2]['变量名'].values)
-print('PSI drop features: \n', not_used_cols)
+psi_used_cols = list(psi_df[psi_df['PSI'] <= 0.2]['变量名'].values)
+psi_not_used_cols = list(psi_df[psi_df['PSI'] > 0.2]['变量名'].values)
+print('PSI used features: \n', psi_used_cols)
+print('PSI drop features: \n', psi_not_used_cols)
+print('Error drop features: \n', list(set(used_cols) - set(psi_used_cols)))
