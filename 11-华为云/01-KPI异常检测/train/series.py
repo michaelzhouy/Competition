@@ -28,7 +28,7 @@ def get_shift_feature(df_, start, end, col='value', group='kpi_id_mdh'):
     for i in range(start, end + 1):
         add_feat.append('shift_{}_{}_{}'.format(col, group, i))
         df['{}_{}'.format(group, i)] = df[group] + i
-        df_last = df[df[col].notnull()].set_index('{}_{}'.format(col, i))
+        df_last = df[df[col].notnull()].set_index('{}_{}'.format(group, i))
         df['shift_{}_{}_{}'.format(col, group, i)] = df[group].map(df_last[col])
         del df['{}_{}'.format(group, i)]
         del df_last
@@ -39,13 +39,13 @@ def get_shift_feature(df_, start, end, col='value', group='kpi_id_mdh'):
 def get_adjoin_feature(df_, start, end, space, col='value', group='kpi_id_mdh'):
     df = df_.copy()
     add_feat = []
-    for i in range(start, end+1):
+    for i in range(start, end + 1):
         add_feat.append('adjoin_{}_{}_{}_{}_{}_sum'.format(col, group, i, i + space, space)) # 求和
         add_feat.append('adjoin_{}_{}_{}_{}_{}_mean'.format(col, group, i, i + space, space)) # 均值
         add_feat.append('adjoin_{}_{}_{}_{}_{}_diff'.format(col, group, i, i + space, space)) # 首尾差值
         add_feat.append('adjoin_{}_{}_{}_{}_{}_ratio'.format(col, group, i, i + space, space)) # 首尾比例
         df['adjoin_{}_{}_{}_{}_{}_sum'.format(col, group, i, i + space, space)] = 0
-        for j in range(0, space+1):
+        for j in range(0, space + 1):
             df['adjoin_{}_{}_{}_{}_{}_sum'.format(col, group, i, i + space, space)] = (df['adjoin_{}_{}_{}_{}_{}_sum'.format(col, group, i, i + space, space)]
                                                                                        + df['shift_{}_{}_{}'.format(col, group, i + j)])
         df['adjoin_{}_{}_{}_{}_{}_mean'.format(col, group, i, i + space, space)] = (df['adjoin_{}_{}_{}_{}_{}_sum'.format(col, group, i, i + space, space)].values
@@ -73,6 +73,7 @@ def get_series_feature(df_, start, end, col='value', group='kpi_id_mdh', types=[
     for typ in types:
         add_feat.append('series_{}_{}_{}_{}_{}'.format(col, group, start, end, typ))
     return df, add_feat
+
 
 print(time.strftime('%Y%m%d'))
 train = get_data_reference(dataset='data', dataset_entity='train').to_pandas_dataframe()
@@ -228,27 +229,90 @@ gc.collect()
 # 时序特征
 stat_feat = []
 # 平移
-start, end = 1, 96
+start, end = 1, 336
 data, add_feat = get_shift_feature(data, start, end, col='value', group='kpi_id_mdh')
 
 # 相邻
-start, end = 1, 95
+start, end = 1, 167
 data, add_feat = get_adjoin_feature(data, start, end, space=1, col='value', group='kpi_id_mdh')
 stat_feat = stat_feat + add_feat
-start, end = 1, 94
+start, end = 1, 166
 data, add_feat = get_adjoin_feature(data, start, end, space=2, col='value', group='kpi_id_mdh')
 stat_feat = stat_feat + add_feat
-start, end = 1, 93
+start, end = 1, 165
 data, add_feat = get_adjoin_feature(data, start, end, space=3, col='value', group='kpi_id_mdh')
 stat_feat = stat_feat + add_feat
-start, end = 1, 92
+start, end = 1, 164
 data, add_feat = get_adjoin_feature(data, start, end, space=4, col='value', group='kpi_id_mdh')
 stat_feat = stat_feat + add_feat
-start, end = 1, 91
+start, end = 1, 163
 data, add_feat = get_adjoin_feature(data, start, end, space=5, col='value', group='kpi_id_mdh')
 stat_feat = stat_feat + add_feat
-start, end = 1, 90
+start, end = 1, 162
 data, add_feat = get_adjoin_feature(data, start, end, space=6, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 143
+data, add_feat = get_adjoin_feature(data, start, end, space=25, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 144
+data, add_feat = get_adjoin_feature(data, start, end, space=24, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 145
+data, add_feat = get_adjoin_feature(data, start, end, space=23, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 119
+data, add_feat = get_adjoin_feature(data, start, end, space=49, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 120
+data, add_feat = get_adjoin_feature(data, start, end, space=48, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 121
+data, add_feat = get_adjoin_feature(data, start, end, space=47, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+# start, end = 1, 71
+# data, add_feat = get_adjoin_feature(data, start, end, space=97, col='value', group='kpi_id_mdh')
+# stat_feat = stat_feat + add_feat
+# start, end = 1, 72
+# data, add_feat = get_adjoin_feature(data, start, end, space=96, col='value', group='kpi_id_mdh')
+# stat_feat = stat_feat + add_feat
+# start, end = 1, 73
+# data, add_feat = get_adjoin_feature(data, start, end, space=95, col='value', group='kpi_id_mdh')
+# stat_feat = stat_feat + add_feat
+start, end = 1, 47
+data, add_feat = get_adjoin_feature(data, start, end, space=169, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 48
+data, add_feat = get_adjoin_feature(data, start, end, space=168, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 49
+data, add_feat = get_adjoin_feature(data, start, end, space=167, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 47
+data, add_feat = get_adjoin_feature(data, start, end, space=25, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 48
+data, add_feat = get_adjoin_feature(data, start, end, space=24, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 49
+data, add_feat = get_adjoin_feature(data, start, end, space=23, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 23
+data, add_feat = get_adjoin_feature(data, start, end, space=169, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 24
+data, add_feat = get_adjoin_feature(data, start, end, space=168, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 25
+data, add_feat = get_adjoin_feature(data, start, end, space=167, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 23
+data, add_feat = get_adjoin_feature(data, start, end, space=25, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 24
+data, add_feat = get_adjoin_feature(data, start, end, space=24, col='value', group='kpi_id_mdh')
+stat_feat = stat_feat + add_feat
+start, end = 1, 25
+data, add_feat = get_adjoin_feature(data, start, end, space=23, col='value', group='kpi_id_mdh')
 stat_feat = stat_feat + add_feat
 
 # 连续
@@ -261,7 +325,24 @@ stat_feat = stat_feat + add_feat
 start, end = 1, 7
 data, add_feat = get_series_feature(data, start, end)
 stat_feat = stat_feat + add_feat
-
+start, end = 1, 24
+data, add_feat = get_series_feature(data, start, end)
+stat_feat = stat_feat + add_feat
+start, end = 1, 48
+data, add_feat = get_series_feature(data, start, end)
+stat_feat = stat_feat + add_feat
+start, end = 1, 72
+data, add_feat = get_series_feature(data, start, end)
+stat_feat = stat_feat + add_feat
+start, end = 1, 144
+data, add_feat = get_series_feature(data, start, end)
+stat_feat = stat_feat + add_feat
+start, end = 1, 144
+data, add_feat = get_series_feature(data, start, end)
+stat_feat = stat_feat + add_feat
+start, end = 1, 192
+data, add_feat = get_series_feature(data, start, end)
+stat_feat = stat_feat + add_feat
 
 train = data.loc[data['label'].notnull(), :]
 y = train['label'].astype(int)
