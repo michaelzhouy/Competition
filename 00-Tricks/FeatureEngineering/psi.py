@@ -45,7 +45,7 @@ def get_psi(c, x_train, x_test):
 
 
 # 调用方法
-psi_res = Parallel(n_jobs=4)(delayed(get_psi)(c, X, X_test) for c in used_cols)
+psi_res = Parallel(n_jobs=4)(delayed(get_psi)(c, train, test) for c in used_cols)
 psi_df = pd.concat(psi_res)
 psi_used_cols = list(psi_df[psi_df['PSI'] <= 0.2]['变量名'].values)
 psi_not_used_cols = list(psi_df[psi_df['PSI'] > 0.2]['变量名'].values)
