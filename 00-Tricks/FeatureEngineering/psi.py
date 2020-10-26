@@ -9,6 +9,20 @@ from joblib import Parallel, delayed
 
 
 def get_psi(c, x_train, x_test):
+    """
+    # 调用方法
+    psi_res = Parallel(n_jobs=4)(delayed(get_psi)(c, train, test) for c in used_cols)
+    psi_df = pd.concat(psi_res)
+    psi_used_cols = list(psi_df[psi_df['PSI'] <= 0.2]['变量名'].values)
+    psi_not_used_cols = list(psi_df[psi_df['PSI'] > 0.2]['变量名'].values)
+    print('PSI used features: \n', psi_used_cols)
+    print('PSI drop features: \n', psi_not_used_cols)
+    print('Error drop features: \n', list(set(used_cols) - set(psi_used_cols)))
+    @param c:
+    @param x_train:
+    @param x_test:
+    @return:
+    """
     psi_res = pd.DataFrame()
     psi_dict={}
     # for c in tqdm(f_cols):
@@ -42,13 +56,3 @@ def get_psi(c, x_train, x_test):
     except:
         print(c,'error')
     return psi_res #, psi_dict
-
-
-# 调用方法
-psi_res = Parallel(n_jobs=4)(delayed(get_psi)(c, train, test) for c in used_cols)
-psi_df = pd.concat(psi_res)
-psi_used_cols = list(psi_df[psi_df['PSI'] <= 0.2]['变量名'].values)
-psi_not_used_cols = list(psi_df[psi_df['PSI'] > 0.2]['变量名'].values)
-print('PSI used features: \n', psi_used_cols)
-print('PSI drop features: \n', psi_not_used_cols)
-print('Error drop features: \n', list(set(used_cols) - set(psi_used_cols)))
