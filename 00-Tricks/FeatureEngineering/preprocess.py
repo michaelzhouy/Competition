@@ -6,6 +6,33 @@ import pandas as pd
 import datetime
 
 
+def identify_single_unique(df):
+    """
+    单一值
+    @param df:
+    @return:
+    """
+    unique_cnts = df.nunique()
+    unique_cnts = unique_cnts.sort_values(by='nunique', ascending=True)
+    to_drop = unique_cnts[unique_cnts == 1].index.to_list()
+    print('{} features with a single unique value.\n'.format(len(to_drop)))
+    return to_drop
+
+
+def identify_missing(df, missing_threshold):
+    """
+    缺失率
+    @param df:
+    @param missing_threshold:
+    @return:
+    """
+    missing_rate = df.isnull().sum() / len(df)
+    missing_rate = missing_rate.sort_values(ascending=False)
+    to_drop = missing_rate[missing_rate > missing_threshold].index.to_list()
+    print('{} features with greater than %0.2f missing values.\n'.format(len(to_drop)))
+    return to_drop
+
+
 def overfit_reducer(df, threshold=99.9):
     """
     计算每列中取值的分布，返回单一值占比达到阈值的列名
