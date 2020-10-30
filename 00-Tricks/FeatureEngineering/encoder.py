@@ -10,9 +10,6 @@ import gc
 from sklearn.preprocessing import LabelEncoder
 
 
-
-
-
 def low_freq_encode(df, cat_cols, freq=2):
     """
     将类别特征取值较少的归为一类
