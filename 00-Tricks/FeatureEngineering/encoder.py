@@ -34,6 +34,7 @@ def count_encode(df, cols=[]):
         print(col)
         vc = df[col].value_counts(dropna=True, normalize=True)
         df[col + '_count'] = df[col].map(vc).astype('float32')
+    return df
 
 
 def label_encode(df, cols, verbose=True):
@@ -52,6 +53,7 @@ def label_encode(df, cols, verbose=True):
             df[col] = df[col].astype('int16')
         if verbose:
             print(col)
+    return df
 
 
 def train_test_label_encode(df, cat_col, type='save', path='./'):
@@ -194,3 +196,4 @@ def discretization(df, num_cols):
     for f in num_cols:
         for bin in [20, 50, 100, 200]:
             df['{}_{}_bin'.format(f, bin)] = pd.cut(df[f], bin, duplicates='drop').apply(lambda x: x.left).astype(int)
+    return df
