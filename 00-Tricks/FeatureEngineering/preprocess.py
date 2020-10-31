@@ -28,8 +28,9 @@ def identify_missing(df, missing_threshold):
     """
     missing_rate = df.isnull().sum() / len(df)
     missing_rate = missing_rate.sort_values(ascending=False)
+    print(missing_rate)
     to_drop = missing_rate[missing_rate > missing_threshold].index.to_list()
-    print('{} features with greater than %0.2f missing values.\n'.format(len(to_drop)))
+    print('{} features with greater than {} missing values.\n'.format(len(to_drop), missing_threshold))
     return to_drop
 
 
