@@ -6,8 +6,7 @@ import numpy as np
 import pandas as pd
 import lightgbm as lgb
 from sklearn.model_selection import KFold, StratifiedKFold
-from sklearn.metrics import roc_curve
-from sklearn.metrics import precision_recall_curve, f1_score
+from sklearn.metrics import f1_score, roc_curve, precision_recall_curve
 import gc
 
 
@@ -26,6 +25,12 @@ def self_metric(preds, train_data):
     y_preds = np.where(preds >= np.percentile(preds, 95), 1, 0)
     f1 = f1_score(labels, y_preds)
     return 'self_metric', f1, True
+
+
+def lgb_f1_score(y_hat, data):
+    y_true = data.get_label()
+    y_hat = np.where(y_hat > 0.5, 1, 0)
+    return 'f1', f1_score(y_true, y_hat), True
 
 
 def lgb_model(X_train, y_train, X_valid=None, y_valid=None, valid_model_path='./'):
