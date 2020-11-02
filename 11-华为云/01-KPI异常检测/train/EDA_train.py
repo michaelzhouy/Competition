@@ -4,6 +4,7 @@ import numpy as np
 import datetime
 import pandas as pd
 import gc
+from tqdm import tqdm
 import warnings
 warnings.filterwarnings('ignore')
 import matplotlib.pyplot as plt
@@ -11,8 +12,6 @@ import seaborn as sns
 import lightgbm as lgb
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
-%matplotlib inline
-os.chdir("/home/ma-user/work/FE")
 from naie.context import Context as context
 from naie.datasets import data_reference
 from naie.feature_processing import data_flow
@@ -125,7 +124,7 @@ sub19['label'] = np.where(df_test['value'] < 10000, 1, 0)
 subs = pd.concat([sub0, sub2, sub4, sub13, sub18, sub19])
 
 for kpi in sp_kpi:
-    df = data.loc[data['kpi_id_num'] = kpi]
+    df = data.loc[data['kpi_id_num'] == kpi, :]
     df.sort_values('start_time', inplace=True)
     for i in tqdm([1, 2, 3]):
         df['shift{}'.format(i)] = df['value'].shift(i)
@@ -204,4 +203,4 @@ for kpi in sp_kpi:
 sub = sub.merge(subs, on=['start_time', 'end_time', 'kpi_id'], how='left')
 out_path = os.path.join(Context.get_output_path(), "result" + '.csv')
 with open(out_path, 'w') as f:
-    submission.to_csv(f, index=False)
+    sub.to_csv(f, index=False)
