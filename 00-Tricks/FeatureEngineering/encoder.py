@@ -8,6 +8,7 @@ from tqdm import tqdm
 import pickle
 import gc
 from sklearn.preprocessing import LabelEncoder
+from scipy import stats
 
 
 def low_freq_encode(df, cat_cols, freq=2):
@@ -23,14 +24,14 @@ def low_freq_encode(df, cat_cols, freq=2):
         df['{}_low_freq'.format(i)] = df[i].apply(lambda x: -999 if name_dict[x] < freq else x)
 
 
-def count_encode(df, cols=[]):
+def count_encode(df, cat_cols):
     """
     count编码
     @param df:
-    @param cols:
+    @param cat_cols:
     @return:
     """
-    for col in cols:
+    for col in cat_cols:
         print(col)
         vc = df[col].value_counts(dropna=True, normalize=True)
         df[col + '_count'] = df[col].map(vc).astype('float32')
@@ -147,6 +148,9 @@ def cross_cat_num(df, cat_cols, num_cols):
                 '{}_{}_max'.format(f1, f2): 'max',
                 '{}_{}_min'.format(f1, f2): 'min',
                 '{}_{}_median'.format(f1, f2): 'median',
+                '{}_{}_mode'.format(f1, f2): lambda x: np.mean(pd.Series.mode(x)),
+                # '{}_{}_mode'.format(f1, f2): lambda x: stats.mode(x)[0][0],
+                # '{}_{}_mode'.format(f1, f2): lambda x: x.value_counts().index[0],
                 '{}_{}_mean'.format(f1, f2): 'mean',
                 '{}_{}_sum'.format(f1, f2): 'sum',
                 '{}_{}_skew'.format(f1, f2): 'skew',
