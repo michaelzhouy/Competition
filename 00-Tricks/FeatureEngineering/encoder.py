@@ -130,8 +130,8 @@ def cross_cat_num(df, cat_cols, num_cols):
     """
     类别特征与数据特征groupby统计
     @param df:
-    @param cat_col: 类别特征
-    @param num_col: 数值特征
+    @param cat_cols: 类别特征
+    @param num_cols: 数值特征
     @return:
     """
     def max_min(s):
@@ -166,24 +166,24 @@ def cross_cat_num(df, cat_cols, num_cols):
     return df
 
 
-def arithmetic(df, cross_features):
+def arithmetic(df, num_cols):
     """
-    数值特征之间的加减乘除
+    数值特征之间的加减乘除，x * x / y，log(x) / y
     @param df:
-    @param cross_features: 交叉用的数值特征
+    @param num_cols: 交叉用的数值特征
     @return:
     """
-    for i in tqdm(range(len(cross_features))):
-        for j in range(i + 1, len(cross_features)):
-            colname_add = '{}_{}_add'.format(cross_features[i], cross_features[j])
-            colname_substract = '{}_{}_subtract'.format(cross_features[i], cross_features[j])
-            colname_multiply = '{}_{}c_multiply'.format(cross_features[i], cross_features[j])
-            df[colname_add] = df[cross_features[i]] + df[cross_features[j]]
-            df[colname_substract] = df[cross_features[i]] - df[cross_features[j]]
-            df[colname_multiply] = df[cross_features[i]] * df[cross_features[j]]
+    for i in tqdm(range(len(num_cols))):
+        for j in range(i + 1, len(num_cols)):
+            colname_add = '{}_{}_add'.format(num_cols[i], num_cols[j])
+            colname_substract = '{}_{}_subtract'.format(num_cols[i], num_cols[j])
+            colname_multiply = '{}_{}c_multiply'.format(num_cols[i], num_cols[j])
+            df[colname_add] = df[num_cols[i]] + df[num_cols[j]]
+            df[colname_substract] = df[num_cols[i]] - df[num_cols[j]]
+            df[colname_multiply] = df[num_cols[i]] * df[num_cols[j]]
 
-    for f1 in tqdm(cross_features):
-        for f2 in cross_features:
+    for f1 in tqdm(num_cols):
+        for f2 in num_cols:
             if f1 != f2:
                 colname_ratio = '{}_{}_ratio'.format(f1, f2)
                 df[colname_ratio] = df[f1].values / (df[f2].values + 0.001)
