@@ -184,26 +184,16 @@ def q90(x):
 
 
 def gen_feat(df):
-    # df.sort_values(['ID', 'time'], inplace=True)
-    print('1111111')
-    print(df.index)
-    df = df.groupby('ID', as_index=False).apply(lambda x: x.sort_values('time'))
-    print('2222222')
-    print(df.index)
-
+    df.sort_values(['ID', 'time'], inplace=True)
+    # df = df.groupby('ID', as_index=False).apply(lambda x: x.sort_values('time'))
     df.index = range(len(df))
-    print('3333333')
-    print(df.index)
 
     df['time'] = df['time'].apply(lambda x: '2019-' + x.split(' ')[0][:2] + '-' + x.split(' ')[0][2:] + ' ' + x.split(' ')[1])
     df['time'] = pd.to_datetime(df['time'])
 
-    print(df.head())
-    print(df.columns)
-    print(df.index)
-    df['lat_diff'] = df.groupby('ID', as_index=False)['lat'].diff(1)
-    df['lon_diff'] = df.groupby('ID', as_index=False)['lon'].diff(1)
-    df['speed_diff'] = df.groupby('ID', as_index=False)['speed'].diff(1)
+    df['lat_diff'] = df.groupby('ID')['lat'].diff(1)
+    df['lon_diff'] = df.groupby('ID')['lon'].diff(1)
+    df['speed_diff'] = df.groupby('ID')['speed'].diff(1)
     df['diff_minutes'] = df.groupby('ID')['time'].diff(1).dt.seconds // 60
     df['anchor'] = df.apply(lambda x: 1 if x['lat_diff'] < 0.01 and x['lon_diff'] < 0.01
                             and x['speed'] < 0.1 and x['diff_minutes'] <= 10 else 0, axis=1)
