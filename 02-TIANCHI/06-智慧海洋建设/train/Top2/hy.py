@@ -21,6 +21,7 @@ warnings.filterwarnings('ignore')
 # os.environ['PYTHONHASHSEED'] = '0'
 
 
+# reference: https://github.com/vinsci/geohash
 def geohash_encode(latitude, longitude, precision=12):
     """
     Encode a position given in float arguments latitude, longitude to
