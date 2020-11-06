@@ -94,6 +94,7 @@ def count2vec(input_values, output_num, output_prefix, seed=1024):
 
 
 def get_geohash_tfidf(df, group_id, group_target, num):
+    # tfidf_df = get_geohash_tfidf(df, 'ID', 'lat_lon', 30)
     df[group_target] = df.apply(lambda x: geohash_encode(x['lat'], x['lon'], 7), axis=1)
     tmp = df.groupby(group_id)[group_target].agg(list).reset_index()
     tmp[group_target] = tmp[group_target].apply(lambda x: ' '.join(x))
@@ -104,6 +105,7 @@ def get_geohash_tfidf(df, group_id, group_target, num):
 
 
 def get_grad_tfidf(df, group_id, group_target, num):
+    # grad_tfidf = get_grad_tfidf(df, 'ID', 'grad', 30)
     grad_df = df.groupby(group_id)['lat'].apply(lambda x: np.gradient(x)).reset_index()
     grad_df['lon'] = df.groupby(group_id)['lon'].apply(lambda x: np.gradient(x))
     grad_df['lat'] = grad_df['lat'].apply(lambda x: np.round(x, 4))
@@ -117,6 +119,7 @@ def get_grad_tfidf(df, group_id, group_target, num):
 
 
 def get_sample_tfidf(df, group_id, group_target, num):
+    # sample_tfidf = get_sample_tfidf(df, 'ID', 'sample', 30)
     tmp = df.groupby(group_id)['lat_lon'].apply(lambda x: x.sample(frac=0.1, random_state=1)).reset_index()
     del tmp['level_1']
     tmp.columns = [group_id, group_target]
@@ -129,6 +132,7 @@ def get_sample_tfidf(df, group_id, group_target, num):
 
 # workers设为1可复现训练好的词向量，但速度稍慢，若不考虑复现的话，可对此参数进行调整
 def w2v_feat(df, group_id, feat, length):
+    # w2v_df = w2v_feat(df, 'ID', 'lat_lon', 30)
     print('start word2vec ...')
     data_frame = df.groupby(group_id)[feat].agg(list).reset_index()
     model = Word2Vec(data_frame[feat].values, size=length, window=5, min_count=1, sg=1, hs=1,
@@ -230,7 +234,7 @@ def gen_feat(df):
 
     # 获取TOP频次的位置信息，这里选Top3
     mode_df = df.groupby(['ID', 'lat', 'lon'], as_index=False)['time'].agg({'mode_cnt': 'count'})
-    mode_df['rank'] = mode_df.groupby('ID', as_index=False)['mode_cnt'].rank(method='first', ascending=False)
+    mode_df['rank'] = mode_df.groupby('ID')['mode_cnt'].rank(method='first', ascending=False)
     for i in range(1, 4):
         tmp_df = mode_df[mode_df['rank'] == i]
         del tmp_df['rank']
