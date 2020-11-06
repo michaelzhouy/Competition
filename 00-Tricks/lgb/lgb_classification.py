@@ -82,7 +82,8 @@ def lgb_model(X_train, y_train, X_valid=None, y_valid=None, valid_model_path='./
             valid_sets=[valid_dataset, train_dataset],
             num_boost_round=1000000,
             early_stopping_rounds=200,
-            verbose_eval=300
+            verbose_eval=300,
+            # feval=lgb_f1_score
         )
         # 保存模型
         valid_model.save_model(valid_model_path + 'lgb.txt')
