@@ -94,7 +94,7 @@ def count2vec(input_values, output_num, output_prefix, seed=1024):
 
 def get_geohash_tfidf(df, group_id, group_target, num):
     df[group_target] = df.apply(lambda x: geohash_encode(x['lat'], x['lon'], 7), axis=1)
-    tmp = df.groupby(group_id, as_index=False)[group_target].agg(list)
+    tmp = df.groupby(group_id)[group_target].agg(list).reset_index()
     tmp[group_target] = tmp[group_target].apply(lambda x: ' '.join(x))
 
     tfidf_tmp = tfidf(tmp[group_target], num, group_target)
@@ -103,22 +103,23 @@ def get_geohash_tfidf(df, group_id, group_target, num):
 
 
 def get_grad_tfidf(df, group_id, group_target, num):
-    grad_df = df.groupby(group_id, as_index=False)['lat'].apply(lambda x: np.gradient(x))
-    grad_df['lon'] = df.groupby(group_id, as_index=False)['lon'].apply(lambda x: np.gradient(x))['lon']
+    grad_df = df.groupby(group_id)['lat'].apply(lambda x: np.gradient(x)).reset_index()
+    grad_df['lon'] = df.groupby(group_id)['lon'].apply(lambda x: np.gradient(x))
     grad_df['lat'] = grad_df['lat'].apply(lambda x: np.round(x, 4))
     grad_df['lon'] = grad_df['lon'].apply(lambda x: np.round(x, 4))
-    grad_df[group_target] = grad_df.apply(
-        lambda x: ' '.join(['{}_{}'.format(z[0], z[1]) for z in zip(x['lat'], x['lon'])]), axis=1)
+    # grad_df[group_target] = grad_df.apply(
+    #     lambda x: ' '.join(['{}_{}'.format(z[0], z[1]) for z in zip(x['lat'], x['lon'])]), axis=1)
+    grad_df[group_target] = grad_df.apply(lambda x: str(x['lat']) + ' ' + str(x['lon']), axis=1)
 
     tfidf_tmp = tfidf(grad_df[group_target], num, group_target)
     return pd.concat([grad_df[[group_id]], tfidf_tmp], axis=1)
 
 
 def get_sample_tfidf(df, group_id, group_target, num):
-    tmp = df.groupby(group_id, as_index=False)['lat_lon'].apply(lambda x: x.sample(frac=0.1, random_state=1))
+    tmp = df.groupby(group_id)['lat_lon'].apply(lambda x: x.sample(frac=0.1, random_state=1)).reset_index()
     del tmp['level_1']
     tmp.columns = [group_id, group_target]
-    tmp = tmp.groupby(group_id, as_index=False)[group_target].agg(list)
+    tmp = tmp.groupby(group_id)[group_target].agg(list).reset_index()
     tmp[group_target] = tmp[group_target].apply(lambda x: ' '.join(x))
 
     tfidf_tmp = tfidf(tmp[group_target], num, group_target)
@@ -128,7 +129,7 @@ def get_sample_tfidf(df, group_id, group_target, num):
 # workers设为1可复现训练好的词向量，但速度稍慢，若不考虑复现的话，可对此参数进行调整
 def w2v_feat(df, group_id, feat, length):
     print('start word2vec ...')
-    data_frame = df.groupby(group_id, as_index=False)[feat].agg(list)
+    data_frame = df.groupby(group_id)[feat].agg(list).reset_index()
     model = Word2Vec(data_frame[feat].values, size=length, window=5, min_count=1, sg=1, hs=1,
                      workers=1, iter=10, seed=1, hashfxn=hashfxn)
     data_frame[feat] = data_frame[feat].apply(lambda x: pd.DataFrame([model[c] for c in x]))
@@ -140,7 +141,7 @@ def w2v_feat(df, group_id, feat, length):
 
 def d2v_feat(df, group_id, feat, length):
     print('start doc2vec ...')
-    data_frame = df.groupby(group_id, as_index=False)[feat].agg(list)
+    data_frame = df.groupby(group_id)[feat].agg(list).reset_index()
     documents = [TaggedDocument(doc, [i]) for i, doc in zip(data_frame[group_id].values, data_frame[feat])]
     model = Doc2Vec(documents, vector_size=length, window=5, min_count=1, workers=1, seed=1, hashfxn=hashfxn, 
                     epochs=10, sg=1, hs=1)
@@ -183,8 +184,14 @@ def q90(x):
 
 def gen_feat(df):
     # df.sort_values(['ID', 'time'], inplace=True)
+    print('1111111')
     print(df.index)
     df = df.groupby('ID', as_index=False).apply(lambda x: x.sort_values('time'))
+    print('2222222')
+    print(df.index)
+
+    df.index = range(len(df))
+    print('3333333')
     print(df.index)
 
     df['time'] = df['time'].apply(lambda x: '2019-' + x.split(' ')[0][:2] + '-' + x.split(' ')[0][2:] + ' ' + x.split(' ')[1])
@@ -196,7 +203,7 @@ def gen_feat(df):
     df['lat_diff'] = df.groupby('ID', as_index=False)['lat'].diff(1)
     df['lon_diff'] = df.groupby('ID', as_index=False)['lon'].diff(1)
     df['speed_diff'] = df.groupby('ID', as_index=False)['speed'].diff(1)
-    df['diff_minutes'] = df.groupby('ID', as_index=False)['time'].diff(1).dt.seconds // 60
+    df['diff_minutes'] = df.groupby('ID')['time'].diff(1).dt.seconds // 60
     df['anchor'] = df.apply(lambda x: 1 if x['lat_diff'] < 0.01 and x['lon_diff'] < 0.01
                             and x['speed'] < 0.1 and x['diff_minutes'] <= 10 else 0, axis=1)
 
@@ -204,10 +211,10 @@ def gen_feat(df):
     speed_neg_zero = df[df['speed_diff'] != 0]
 
     df['type'] = df['type'].map({'围网': 0, '刺网': 1, '拖网': 2, 'unknown': -1})
-    group_df = df.groupby('ID', as_index=False)['type'].agg({'label': 'mean', 'cnt': 'count'}).reset_index()
+    group_df = df.groupby('ID', as_index=False)['type'].agg({'label': 'mean', 'cnt': 'count'})
 
     # 获取锚点位置信息
-    anchor_df = df.groupby('ID', as_index=False)['anchor'].agg('sum').reset_index()
+    anchor_df = df.groupby('ID', as_index=False)['anchor'].agg('sum')
     anchor_df.columns = ['ID', 'anchor_cnt']
 
     group_df = group_df.merge(anchor_df, on='ID', how='left')
@@ -218,13 +225,13 @@ def gen_feat(df):
 
     stat_cols = ['lat', 'lon', 'speed', 'direction']
     group_tmp = df.groupby('ID', as_index=False)[stat_cols].agg(stat_functions)
-    group_tmp.columns = ['ID'] + ['{}_{}'.format(i, j) for i in stat_cols for j in stat_ways]
+    group_tmp.columns = ['{}_{}'.format(i, j) for i in stat_cols for j in stat_ways]
 
     lat_lon_neq_group = lat_lon_neq_zero.groupby('ID', as_index=True)[stat_cols].agg(stat_functions)
-    lat_lon_neq_group.columns = ['ID'] + ['pos_neq_zero_{}_{}'.format(i, j) for i in stat_cols for j in stat_ways]
+    lat_lon_neq_group.columns = ['pos_neq_zero_{}_{}'.format(i, j) for i in stat_cols for j in stat_ways]
 
-    speed_neg_zero_group = speed_neg_zero.groupby('ID', as_index=True)[stat_cols].agg(stat_functions)
-    speed_neg_zero_group.columns = ['ID'] + ['speed_neq_zero_{}_{}'.format(i, j) for i in stat_cols for j in stat_ways]
+    speed_neg_zero_group = speed_neg_zero.groupby('ID')[stat_cols].agg(stat_functions)
+    speed_neg_zero_group.columns = ['speed_neq_zero_{}_{}'.format(i, j) for i in stat_cols for j in stat_ways]
 
     group_df = group_df.merge(group_tmp, on='ID', how='left')
     group_df = group_df.merge(lat_lon_neq_group, on='ID', how='left')
@@ -383,7 +390,7 @@ if __name__ == "__main__":
     print('test')
     print(test.columns)
     print(test.index)
-    train = pd.concat([train, test], axis=0, ignore_index=True)
+    train = pd.concat([train, test], axis=0, ignore_index=False)
     # train = train.append(test)
     print(train.columns)
     print(train.index)
