@@ -33,6 +33,19 @@ def lgb_f1_score(y_hat, data):
     return 'f1', f1_score(y_true, y_hat), True
 
 
+def f1_score_eval(preds, valid_df):
+    """
+    多分类任务F1
+    @param preds:
+    @param valid_df:
+    @return:
+    """
+    labels = valid_df.get_label()
+    preds = np.argmax(preds.reshape(3, -1), axis=0)
+    scores = f1_score(y_true=labels, y_pred=preds, average='macro')
+    return 'macro_f1_score', scores, True
+
+
 def lgb_model(X_train, y_train, X_valid=None, y_valid=None, valid_model_path='./'):
     """
     lgb训练
