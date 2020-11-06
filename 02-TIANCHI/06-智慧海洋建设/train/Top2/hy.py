@@ -365,7 +365,7 @@ def get_data(file_path, model):
 if __name__ == "__main__":
     train_dir = '../../input/hy_round2_train_20200225'
     test_dir = '../../input/hy_round1_testB_20200221'
-    save_path = '../../result.csv'
+    save_path = '../../sub/result.csv'
     prob_qyxs = '../../qyxs_prob.csv'
     use_prob = False
 
