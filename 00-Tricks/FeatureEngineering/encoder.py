@@ -134,11 +134,32 @@ def cross_cat_num(df, cat_cols, num_cols):
     @param num_cols: 数值特征
     @return:
     """
-    def max_min(s):
-        return s.max() - s.min()
+    def max_min(x):
+        return x.max() - x.min()
 
-    def quantile(s, q=0.25):
-        return s.quantile(q)
+    def q10(x):
+        return x.quantile(0.1)
+
+    def q20(x):
+        return x.quantile(0.2)
+
+    def q30(x):
+        return x.quantile(0.3)
+
+    def q40(x):
+        return x.quantile(0.4)
+
+    def q60(x):
+        return x.quantile(0.6)
+
+    def q70(x):
+        return x.quantile(0.7)
+
+    def q80(x):
+        return x.quantile(0.8)
+
+    def q90(x):
+        return x.quantile(0.9)
 
     for f1 in tqdm(cat_cols):
         g = df.groupby(f1, as_index=False)
@@ -156,9 +177,16 @@ def cross_cat_num(df, cat_cols, num_cols):
                 '{}_{}_skew'.format(f1, f2): 'skew',
                 '{}_{}_std'.format(f1, f2): 'std',
                 '{}_{}_nunique'.format(f1, f2): 'nunique',
-                '{}_{}_max_min'.format(f1, f2): max_min,
-                '{}_{}_quantile_25'.format(f1, f2): lambda x: quantile(x, 0.25),
-                '{}_{}_quantile_75'.format(f1, f2): lambda x: quantile(x, 0.75)
+                '{}_{}_max_min'.format(f1, f2): lambda x: max_min(x),
+                '{}_{}_q_10'.format(f1, f2): lambda x: q10(x),
+                '{}_{}_q_20'.format(f1, f2): lambda x: q20(x),
+                '{}_{}_q_30'.format(f1, f2): lambda x: q30(x),
+                '{}_{}_q_40'.format(f1, f2): lambda x: q40(x),
+                '{}_{}_q_60'.format(f1, f2): lambda x: q60(x),
+                '{}_{}_q_70'.format(f1, f2): lambda x: q70(x),
+                '{}_{}_q_80'.format(f1, f2): lambda x: q80(x),
+                '{}_{}_q_90'.format(f1, f2): lambda x: q90(x),
+
             })
             df = df.merge(tmp, on=f1, how='left')
             del tmp
