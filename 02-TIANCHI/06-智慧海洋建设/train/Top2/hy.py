@@ -222,14 +222,14 @@ def en_feat(df):
     stat_ways = ['min', 'max', 'mean', 'median', 'nunique', 'q_10', 'q_20', 'q_30', 'q_40', 'q_60', 'q_70', 'q_80', 'q_90']
 
     stat_cols = ['lat', 'lon', 'speed', 'direction']
-    group_tmp = df.groupby('ID', as_index=False)[stat_cols].agg(stat_functions)
-    group_tmp.columns = ['{}_{}'.format(i, j) for i in stat_cols for j in stat_ways]
+    group_tmp = df.groupby('ID')[stat_cols].agg(stat_functions).reset_index()
+    group_tmp.columns = ['ID'] + ['{}_{}'.format(i, j) for i in stat_cols for j in stat_ways]
 
-    lat_lon_neq_group = lat_lon_neq_zero.groupby('ID', as_index=True)[stat_cols].agg(stat_functions)
-    lat_lon_neq_group.columns = ['pos_neq_zero_{}_{}'.format(i, j) for i in stat_cols for j in stat_ways]
+    lat_lon_neq_group = lat_lon_neq_zero.groupby('ID', as_index=True)[stat_cols].agg(stat_functions).reset_index()
+    lat_lon_neq_group.columns = ['ID'] + ['pos_neq_zero_{}_{}'.format(i, j) for i in stat_cols for j in stat_ways]
 
-    speed_neg_zero_group = speed_neg_zero.groupby('ID')[stat_cols].agg(stat_functions)
-    speed_neg_zero_group.columns = ['speed_neq_zero_{}_{}'.format(i, j) for i in stat_cols for j in stat_ways]
+    speed_neg_zero_group = speed_neg_zero.groupby('ID')[stat_cols].agg(stat_functions).reset_index()
+    speed_neg_zero_group.columns = ['ID'] + ['speed_neq_zero_{}_{}'.format(i, j) for i in stat_cols for j in stat_ways]
 
     group_df = group_df.merge(group_tmp, on='ID', how='left')
     group_df = group_df.merge(lat_lon_neq_group, on='ID', how='left')
