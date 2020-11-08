@@ -14,6 +14,7 @@ from gensim.models import Word2Vec
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 import lightgbm as lgb
 import os
+import gc
 import warnings
 # from .utils import geohash_encode
 
@@ -187,10 +188,12 @@ def q90(x):
     return x.quantile(0.9)
 
 
-def gen_feat(df):
+def en_feat(df):
+    print(df.index)
     df.sort_values(['ID', 'time'], inplace=True)
     # df = df.groupby('ID', as_index=False).apply(lambda x: x.sort_values('time'))
-    df.index = range(len(df))
+    print(df.index)
+    # df.index = range(len(df))
 
     df['time'] = df['time'].apply(lambda x: '2019-' + x.split(' ')[0][:2] + '-' + x.split(' ')[0][2:] + ' ' + x.split(' ')[1])
     df['time'] = pd.to_datetime(df['time'])
@@ -362,6 +365,39 @@ def get_data(file_path, model):
     return tmp_df
 
 
+def read_data(path, model):
+    """
+    读取文件下所有的文件，并合并成一个文件
+    @param path:
+    @param model:
+    @return:
+    """
+    data_list = []
+    for f in os.listdir(path):
+        print(f)
+        df = pd.read_csv(path + os.sep + f)
+        print(df.shape)
+        data_list.append(df)
+        del df
+        gc.collect()
+
+    res = pd.concat(data_list, ignore_index=True)
+    if model == 'train':
+        res.columns = ['ID', 'lat', 'lon', 'speed', 'direction', 'time', 'type']
+    else:
+        res['type'] = 'unknown'
+        res.columns = ['ID', 'lat', 'lon', 'speed', 'direction', 'time', 'type']
+    res['lat'] = res['lat'].astype(float)
+    res['lon'] = res['lon'].astype(float)
+    res['speed'] = res['speed'].astype(float)
+    res['direction'] = res['direction'].astype(int)
+    if model == 'train':
+        res.to_csv('../../input/round2_train.csv', index=False)
+    else:
+        res.to_csv('../../input/round2_test.csv', index=False)
+    return res
+
+
 if __name__ == "__main__":
     train_dir = '../../input/hy_round2_train_20200225'
     test_dir = '../../input/hy_round1_testB_20200221'
@@ -375,18 +411,11 @@ if __name__ == "__main__":
     SAVE_PATH = save_path
     USE_PROB = use_prob
 
-    # train = get_data(TRAIN_PATH, 'train')
-    # test = get_data(TEST_PATH, 'test')
-    train = pd.read_csv('../../input/round2_train.csv')
-    test = pd.read_csv('../../input/round2_test.csv')
-    print('train')
-    print(train.columns)
-    print(train.index)
-    print('test')
-    print(test.columns)
-    print(test.index)
-    train = pd.concat([train, test], axis=0, ignore_index=False)
-    # train = train.append(test)
+    train = read_data(TRAIN_PATH, 'train')
+    test = read_data(TEST_PATH, 'test')
+    # train = pd.read_csv('../../input/round2_train.csv')
+    # test = pd.read_csv('../../input/round2_test.csv')
+    train = pd.concat([train, test], axis=0, ignore_index=True)
     print(train.columns)
     print(train.index)
     all_df = gen_feat(train)
