@@ -104,3 +104,5 @@ data['user_to_lasttime'] = data.groupby('user_id')['time'].diff()
 groupby(['uid', 'day', 'C14'])['label'].agg(xxx='count')
 groupby(['uid', 'time', 'C17'])['label'].agg(xxx='count')
 ```
+
+-   对类别特征做count编码和LabelEncoder
