@@ -205,8 +205,8 @@ def topN(df, group_col, cal_col, N):
     @return:
     """
     tmp = df.groupby(group_col, as_index=False)[cal_col].agg({
-        '{}_{}_top_{}'.format(group_col, cal_col, n): lambda x: x.value_counts().index[N],
-        '{}_{}_top_{}_cnt'.format(group_col, cal_col, n): lambda x: x.value_counts().values[N],
+        '{}_{}_top_{}'.format(group_col, cal_col, N): lambda x: x.value_counts().index[N],
+        '{}_{}_top_{}_cnt'.format(group_col, cal_col, N): lambda x: x.value_counts().values[N],
     })
     df = df.merge(tmp, on=group_col, how='left')
     del tmp
