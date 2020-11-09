@@ -195,6 +195,25 @@ def cat_num_stats(df, cat_cols, num_cols):
     return df
 
 
+def topN(df, group_col, cal_col, N):
+    """
+    最受欢迎的元素及其频次
+    @param df:
+    @param group_col:
+    @param cal_col:
+    @param N: 欢迎程度, 0, 1, 2
+    @return:
+    """
+    tmp = df.groupby(group_col, as_index=False)[cal_col].agg({
+        '{}_{}_top_{}'.format(group_col, cal_col, n): lambda x: x.value_counts().index[N],
+        '{}_{}_top_{}_cnt'.format(group_col, cal_col, n): lambda x: x.value_counts().values[N],
+    })
+    df = df.merge(tmp, on=group_col, how='left')
+    del tmp
+    gc.collect()
+    return df
+
+
 def binning(df, num_cols):
     """
     数值特征离散化
