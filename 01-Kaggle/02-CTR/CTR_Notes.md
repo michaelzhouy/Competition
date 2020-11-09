@@ -71,6 +71,11 @@ submit_sample[['id','click']].to_csv('./sub/baseline5.csv', index=False)
 1.  对类别特征value_counts()，查看异常情况，是否某些取值出现的次数高出其他取值出现的次数几个数量级，可能是缺失值的一种编码方式
 
 2.  基于用户的统计特征（找到uid）
+
+- uid：假设用户的设备不会改变
+```python
+data['user_id'] = data['device_id'] +  '_' + data['device_ip']+  '_'  + data['device_model']
+```
 - 时间序列，用户每天，每个小时在app上出现的次数，用户距上一次出现的时间差
 
 ```python
