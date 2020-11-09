@@ -188,7 +188,7 @@ def q90(x):
     return x.quantile(0.9)
 
 
-def en_feat(df):
+def gen_feat(df):
     print(df.index)
     df.sort_values(['ID', 'time'], inplace=True)
     # df = df.groupby('ID', as_index=False).apply(lambda x: x.sort_values('time'))
