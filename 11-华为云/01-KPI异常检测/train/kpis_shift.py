@@ -158,29 +158,34 @@ data['start_time_dt'] = pd.to_datetime(data['start_time_str'])
 
 # data['mdh'] = ((data['month'] - 8) * 31 + data['day']) * 24 + data['hour']
 
-for i in tqdm(range(1, 11)):
-    data['shift{}'.format(i)] = data.groupby('kpi_id')['value'].shift(i)
-    data['diff{}'.format(i)] = data.groupby('kpi_id')['value'].diff(i)
-    data['rate{}'.format(i)] = data['value'] / (data['shift{}'.format(i)] + 0.0001) - 1
+for i in tqdm([-72, -48, -24] + list(range(-15, 16)) + [24, 48, 72]):
+    data['shift_{}'.format(i)] = data.groupby('kpi_id')['value'].shift(i)
+    data['diff_{}'.format(i)] = data.groupby('kpi_id')['value'].diff(i)
+    data['rate_{}'.format(i)] = data['value'] / (data['shift_{}'.format(i)] + 0.0001) - 1
 
-for i in tqdm([-10, -9, -8, -7, -6, -5, -4, -3, -2, -1]):
-    data['shift{}'.format(i)] = data.groupby('kpi_id')['value'].shift(i)
-    data['diff{}'.format(i)] = data.groupby('kpi_id')['value'].diff(i)
-    data['rate{}'.format(i)] = data['value'] / (data['shift{}'.format(i)] + 0.0001) - 1
+for i in range(2, 10):
+    data['shift_{}_mean'.format(i)] = data.loc['shift_-{}'.format(i):'shift_{}'.format(i)].mean(axis=1)
+    data['shift_{}_sum'.format(i)] = data.loc['shift_-{}'.format(i):'shift_{}'.format(i)].sum(axis=1)
+    data['shift_{}_max'.format(i)] = data.loc['shift_-{}'.format(i):'shift_{}'.format(i)].max(axis=1)
+    data['shift_{}_min'.format(i)] = data.loc['shift_-{}'.format(i):'shift_{}'.format(i)].min(axis=1)
+    data['value-shift_{}_mean'.format(i)'] = data['value'] - data['shift_{}_mean'.format(i)]
 
-# data.set_index('start_time_dt', inplace=True)
+data['shift_2-shift_1'] = data['shift_2'] - data['shift_1']
+data['shift_3-shift_2'] = data['shift_3'] - data['shift_2']
+data['shift_3-shift_1'] = data['shift_3'] - data['shift_1']
+data['shift_-1-shift_1'] = data['shift_-1'] - data['shift_1']
+
+
+# data.set_index('start_time_str', inplace=True)
 # print(data.index)
 
-# for i in tqdm(range(3, 14)):
-#     data['rolling{}_mean'.format(i)] = data.groupby('kpi_id')['value'].rolling(window=i).mean()
-#     data['rolling{}_max'.format(i)] = data.groupby('kpi_id')['value'].rolling(window=i).max()
-#     data['rolling{}_min'.format(i)] = data.groupby('kpi_id')['value'].rolling(window=i).min()
-#     data['rolling{}_median'.format(i)] = data.groupby('kpi_id')['value'].rolling(window=i).median()
+# for i in tqdm(['3hour', '4hour', '5hour', '6hour']):
+#     data['rolling{}_mean'.format(i)] = data.groupby('kpi_id')['value'].rolling(i).mean()
+#     data['rolling{}_max'.format(i)] = data.groupby('kpi_id')['value'].rolling(i).max()
+#     data['rolling{}_min'.format(i)] = data.groupby('kpi_id')['value'].rolling(i).min()
+#     data['rolling{}_median'.format(i)] = data.groupby('kpi_id')['value'].rolling(i).median()
 
 # data.reset_index(inplace=True)
-
-# sp_kpi = [1, 3, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17]
-
 
 train = data.loc[data['label'].notnull(), :]
 test = data.loc[data['label'].isnull(), :]
