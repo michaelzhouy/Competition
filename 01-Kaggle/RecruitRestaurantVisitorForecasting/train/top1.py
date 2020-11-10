@@ -162,6 +162,7 @@ def get_label(end_date, n_day):
 
 def get_store_visitor_feat(label, key, n_day):
     """
+    get_store_visitor_feat(label, key, 1000)
     时间序列，入店的前多少天，店铺的统计量
     @param label:
     @param key:
