@@ -79,7 +79,7 @@ data['user_id'] = data['device_id'] +  '_' + data['device_ip']+  '_'  + data['de
 - 时间序列，用户每天，每个小时在app上出现的次数，用户距上一次出现的时间差
 
 ```python
- data['datetime'] = data['hour'].map(lambda x: datetime.strptime(str(x), '%y%m%d%H'))
+data['datetime'] = data['hour'].map(lambda x: datetime.strptime(str(x), '%y%m%d%H'))
            
 data['dayoftheweek'] = data['datetime'].map(lambda x: x.weekday())
 data['day'] = data['datetime'].map(lambda x: x.day)
