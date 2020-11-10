@@ -164,10 +164,10 @@ for i in tqdm([-72, -48, -24] + list(range(-15, 16)) + [24, 48, 72]):
     data['rate_{}'.format(i)] = data['value'] / (data['shift_{}'.format(i)] + 0.0001) - 1
 
 for i in range(2, 10):
-    data['shift_{}_mean'.format(i)] = data.loc['shift_-{}'.format(i):'shift_{}'.format(i)].mean(axis=1)
-    data['shift_{}_sum'.format(i)] = data.loc['shift_-{}'.format(i):'shift_{}'.format(i)].sum(axis=1)
-    data['shift_{}_max'.format(i)] = data.loc['shift_-{}'.format(i):'shift_{}'.format(i)].max(axis=1)
-    data['shift_{}_min'.format(i)] = data.loc['shift_-{}'.format(i):'shift_{}'.format(i)].min(axis=1)
+    data['shift_{}_mean'.format(i)] = data.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].mean(axis=1)
+    data['shift_{}_sum'.format(i)] = data.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].sum(axis=1)
+    data['shift_{}_max'.format(i)] = data.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].max(axis=1)
+    data['shift_{}_min'.format(i)] = data.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].min(axis=1)
     data['value-shift_{}_mean'.format(i)] = data['value'] - data['shift_{}_mean'.format(i)]
 
 data['shift_2-shift_1'] = data['shift_2'] - data['shift_1']
