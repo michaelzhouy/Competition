@@ -96,16 +96,35 @@ def build_model(df_):
     return train, test, sub
 
 
+params = {
+    'objective': 'binary',
+    'boosting': 'gbdt',
+    'metric': 'auc',
+    'learning_rate': 0.1,
+    'num_leaves': 31,
+    'lambda_l1': 0,
+    'lambda_l2': 1,
+    'num_threads': 23,
+    'min_data_in_leaf': 20,
+    'first_metric_only': True,
+    'is_unbalance': True,
+    'max_depth': -1,
+    'seed': 2020}
+
+
 print(time.strftime('%Y%m%d'))
 train = get_data_reference(dataset='data', dataset_entity='train').to_pandas_dataframe()
 test = get_data_reference(dataset='data', dataset_entity='test').to_pandas_dataframe()
 
 submission = test[['start_time', 'end_time', 'kpi_id']]
 
-data = pd.concat([train, test], axis=0, ignore_index=True)
+train = train.groupby('kpi_id', as_index=False).apply(lambda x: x.sort_values('start_time'))
+test = test.groupby('kpi_id', as_index=False).apply(lambda x: x.sort_values('start_time'))
+
+data = pd.concat([train, test])
 data['kpi_id_num'] = data['kpi_id'].map(dict(zip(data['kpi_id'].unique(), range(data['kpi_id'].nunique()))))
 data = data.groupby('kpi_id', as_index=False).apply(lambda x: x.sort_values('start_time'))
-# data['kpi_id_num'].unique()
+data['kpi_id_num'].unique()
 
 data['start_time_str'] = data['start_time'].map(lambda x: timestamp2string(x))
 data['start_time_dt'] = pd.to_datetime(data['start_time_str'])
@@ -233,22 +252,6 @@ sub['label'] = np.where(df_test['value'] < 70, 1, 0)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
 df_plot(df_train, df_test)
 ###################### df8 ###########################
-
-
-params = {
-    'objective': 'binary',
-    'boosting': 'gbdt',
-    'metric': 'auc',
-    'learning_rate': 0.1,
-    'num_leaves': 31,
-    'lambda_l1': 0,
-    'lambda_l2': 1,
-    'num_threads': 23,
-    'min_data_in_leaf': 20,
-    'first_metric_only': True,
-    'is_unbalance': True,
-    'max_depth': -1,
-    'seed': 2020}
 
 
 ###################### df1 ###########################
