@@ -213,14 +213,9 @@ df_plot(df_train, df_test)
 
 ###################### df18 ###########################
 df = df18.copy()
-
-df_train = df.loc[df['label'].notnull(), :]
-df_test = df.loc[df['label'].isnull(), :]
-df_test['label'] = np.where(df_test['value'] > 1000, 1, 0)
-
-sub = df_test[['start_time', 'end_time', 'kpi_id']]
-sub['label'] = np.where(df_test['value'] > 1000, 1, 0)
-
+df.sort_values('start_time', inplace=True)
+df_fe = FE(df, 15)
+df_train, df_test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
 df_plot(df_train, df_test)
 ###################### df18 ###########################
