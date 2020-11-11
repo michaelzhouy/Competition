@@ -22,6 +22,24 @@ from naie.feature_processing.expression import col, cols, cond, f_and, f_not, f_
 from naie.common.data.typedefinition import StepType, ColumnRelationship, JoinType, ColumnSelector,DynamicColumnsSelectorDetails, StaticColumnsSelectorDetails, ColumnsSelectorDetails, DataProcessMode
 
 
+def df_plot(df_train, df_test):
+    plt.figure(figsize=(25, 10))
+    ax1 = plt.subplot(1, 1, 1)
+    ax1.plot(df_train['start_time_dt'], df_train['value'])
+    ax1.plot(df_test['start_time_dt'], df_test['value'], c='g')
+    size_map = {1: 30, 0: 20}
+    train_size = df_train['label'].map(size_map)
+    test_size = df_test['label'].map(size_map)
+    color_map = {1: 'r', 0: 'b'}
+    train_color = df_train['label'].map(color_map)
+    color_map = {1: 'r', 0: 'g'}
+    test_color = df_test['label'].map(color_map)
+    ax1.scatter(df_train['start_time_dt'], df_train['value'], s=train_size, c=train_color)
+    ax1.scatter(df_test['start_time_dt'], df_test['value'], s=test_size, c=test_color)
+    ax1.set_ylabel('value')
+    plt.show()
+
+
 def timestamp2string(timeStamp):
     """
     将时间戳转换为str对象
@@ -74,6 +92,7 @@ def build_model(df_):
     pred = lgb_model.predict(X_test)
     y_pred = np.where(pred > 0.5, 1, 0)
     sub['label'] = y_pred
+    test['label'] = y_pred
     return train, test, sub
 
 
@@ -101,13 +120,13 @@ df = df0.copy()
 
 df_train = df.loc[df['label'].notnull(), :]
 df_test = df.loc[df['label'].isnull(), :]
-
 df_test['label'] = 0
 
 sub = df_test[['start_time', 'end_time', 'kpi_id']]
 sub['label'] = 0
 
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df0 ###########################
 
 
@@ -122,6 +141,7 @@ sub = df_test[['start_time', 'end_time', 'kpi_id']]
 sub['label'] = np.where(df_test['value'] < 90, 1, 0)
 
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df2 ###########################
 
 
@@ -136,6 +156,7 @@ sub = df_test[['start_time', 'end_time', 'kpi_id']]
 sub['label'] = np.where(df_test['value'] < 71, 1, 0)
 
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df3 ###########################
 
 
@@ -148,7 +169,9 @@ df_test['label'] = 0
 
 sub = df_test[['start_time', 'end_time', 'kpi_id']]
 sub['label'] = 0
+
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df4 ###########################
 
 
@@ -161,7 +184,9 @@ df_test['label'] = np.where(df_test['value'] > 1000, 1, 0)
 
 sub = df_test[['start_time', 'end_time', 'kpi_id']]
 sub['label'] = np.where(df_test['value'] > 1000, 1, 0)
+
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df13 ###########################
 
 
@@ -174,7 +199,9 @@ df_test['label'] = np.where(df_test['value'] > 1000, 1, 0)
 
 sub = df_test[['start_time', 'end_time', 'kpi_id']]
 sub['label'] = np.where(df_test['value'] > 1000, 1, 0)
+
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df18 ###########################
 
 
@@ -187,7 +214,9 @@ df_test['label'] = np.where(df_test['value'] < 10000, 1, 0)
 
 sub = df_test[['start_time', 'end_time', 'kpi_id']]
 sub['label'] = np.where(df_test['value'] < 10000, 1, 0)
+
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df19 ###########################
 
 
@@ -200,7 +229,9 @@ df_test['label'] = np.where(df_test['value'] < 70, 1, 0)
 
 sub = df_test[['start_time', 'end_time', 'kpi_id']]
 sub['label'] = np.where(df_test['value'] < 70, 1, 0)
+
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df8 ###########################
 
 
@@ -224,8 +255,9 @@ params = {
 df = df1.copy()
 df.sort_values('start_time', inplace=True)
 df_fe = FE(df, 35)
-train, test, sub = build_model(df_fe)
+df_train, df_test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df1 ###########################
 
 
@@ -233,8 +265,9 @@ subs = pd.concat([subs, sub], axis=0, ignore_index=True)
 df = df5.copy()
 df.sort_values('start_time', inplace=True)
 df_fe = FE(df, 15)
-train, test, sub = build_model(df_fe)
+df_train, df_test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df5 ###########################
 
 
@@ -244,6 +277,7 @@ df.sort_values('start_time', inplace=True)
 df_fe = FE(df, 15)
 train, test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df6 ###########################
 
 
@@ -253,6 +287,7 @@ df.sort_values('start_time', inplace=True)
 df_fe = FE(df, 15)
 train, test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df7 ###########################
 
 
@@ -262,6 +297,7 @@ df.sort_values('start_time', inplace=True)
 df_fe = FE(df, 15)
 train, test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df10 ###########################
 
 
@@ -271,6 +307,7 @@ df.sort_values('start_time', inplace=True)
 df_fe = FE(df, 15)
 train, test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df11 ###########################
 
 
@@ -280,6 +317,7 @@ df.sort_values('start_time', inplace=True)
 df_fe = FE(df, 15)
 train, test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df14 ###########################
 
 
@@ -289,6 +327,7 @@ df.sort_values('start_time', inplace=True)
 df_fe = FE(df, 15)
 train, test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df15 ###########################
 
 
@@ -298,6 +337,7 @@ df.sort_values('start_time', inplace=True)
 df_fe = FE(df, 15)
 train, test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
+df_plot(df_train, df_test)
 ###################### df16 ###########################
 
 
