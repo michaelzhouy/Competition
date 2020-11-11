@@ -216,6 +216,7 @@ def build_model(df_):
     
     pred = lgb_model.predict(X_test)
     y_pred = np.where(pred > 0.5, 1, 0)
+    sub['label'] = y_pred
     return train, test, sub
 
 
