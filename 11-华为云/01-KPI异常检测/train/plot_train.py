@@ -38,6 +38,45 @@ def timestamp2string(timeStamp):
         return ''
 
 
+def FE(df, shift_n):
+    for i in tqdm(list(range(-shift_n, shift_n + 1))):
+        if i != 0:
+            df['shift_{}'.format(i)] = df['value'].shift(i)
+            df['diff_{}'.format(i)] = df['value'].diff(i)
+            df['rate_{}'.format(i)] = df['value'] / (df['shift_{}'.format(i)] + 0.0001) - 1
+    for i in [4]:
+        df['shift_{}_mean'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].mean(axis=1)
+        df['value-shift_{}_mean'.format(i)] = df['value'] - df['shift_{}_mean'.format(i)]
+    return df
+
+
+def build_model(df_):
+    train = df_.loc[df_['label'].notnull(), :]
+    y_train = train['label'].astype(int)
+    test = df_.loc[df_['label'].isnull(), :]
+    sub = test[['start_time', 'end_time', 'kpi_id']]
+    del df_
+    gc.collect()
+
+    mark_cols = ['label', 'start_time', 'end_time', 'kpi_id', 'kpi_id_num', 'start_time_str', 'start_time_dt']
+    used_cols = [i for i in train.columns if i not in mark_cols]
+    X_train = train[used_cols]
+    X_test = test[used_cols]
+    
+    dtrain = lgb.Dataset(X_train, y_train)
+
+    lgb_model = lgb.train(
+        params,
+        dtrain,
+        num_boost_round=20,
+        verbose_eval=5)
+    
+    pred = lgb_model.predict(X_test)
+    y_pred = np.where(pred > 0.5, 1, 0)
+    sub['label'] = y_pred
+    return train, test, sub
+
+
 print(time.strftime('%Y%m%d'))
 train = get_data_reference(dataset='data', dataset_entity='train').to_pandas_dataframe()
 test = get_data_reference(dataset='data', dataset_entity='test').to_pandas_dataframe()
@@ -182,439 +221,81 @@ params = {
 
 
 ###################### df1 ###########################
-def FE(df):
-    for i in tqdm(list(range(-35, 36))):
-        if i != 0:
-            df['shift_{}'.format(i)] = df['value'].shift(i)
-            df['diff_{}'.format(i)] = df['value'].diff(i)
-            df['rate_{}'.format(i)] = df['value'] / (df['shift_{}'.format(i)]) - 1
-    for i in [2, 5]:
-        df['shift_{}_mean'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].mean(axis=1)
-        df['value-shift_{}_mean'.format(i)] = df['value'] - df['shift_{}_mean'.format(i)]
-    return df
-
-
-def build_model(df_):
-    train = df_.loc[df_['label'].notnull(), :]
-    y_train = train['label'].astype(int)
-    test = df_.loc[df_['label'].isnull(), :]
-    sub = test[['start_time', 'end_time', 'kpi_id']]
-    del df_
-    gc.collect()
-
-    used_cols = [i for i in train.columns if i not in ['label', 'start_time', 'end_time', 'kpi_id', 'kpi_id_num', 'start_time_str', 'start_time_dt']]
-    X_train = train[used_cols]
-    X_test = test[used_cols]
-    
-    dtrain = lgb.Dataset(X_train, y_train)
-
-    lgb_model = lgb.train(
-        params,
-        dtrain,
-        num_boost_round=20,
-        verbose_eval=5)
-    
-    pred = lgb_model.predict(X_test)
-    y_pred = np.where(pred > 0.5, 1, 0)
-    sub['label'] = y_pred
-    return train, test, sub
-
-
 df = df1.copy()
 df.sort_values('start_time', inplace=True)
-df_fe = FE(df)
+df_fe = FE(df, 35)
 train, test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
 ###################### df1 ###########################
 
 
 ###################### df5 ###########################
-def FE(df):
-    for i in tqdm(list(range(-15, 16))):
-        if i != 0:
-            df['shift_{}'.format(i)] = df['value'].shift(i)
-            df['diff_{}'.format(i)] = df['value'].diff(i)
-            df['rate_{}'.format(i)] = df['value'] / (df['shift_{}'.format(i)]) - 1
-    for i in [2]:
-        df['shift_{}_mean'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].mean(axis=1)
-        df['value-shift_{}_mean'.format(i)] = df['value'] - df['shift_{}_mean'.format(i)]
-    return df
-
-
-def build_model(df_):
-    train = df_.loc[df_['label'].notnull(), :]
-    y_train = train['label'].astype(int)
-    test = df_.loc[df_['label'].isnull(), :]
-    sub = test[['start_time', 'end_time', 'kpi_id']]
-    del df_
-    gc.collect()
-
-    used_cols = [i for i in train.columns if i not in ['label', 'start_time', 'end_time', 'kpi_id', 'kpi_id_num', 'start_time_str', 'start_time_dt']]
-    X_train = train[used_cols]
-    X_test = test[used_cols]
-    
-    dtrain = lgb.Dataset(X_train, y_train)
-
-    lgb_model = lgb.train(
-        params,
-        dtrain,
-        num_boost_round=20,
-        verbose_eval=5)
-    
-    pred = lgb_model.predict(X_test)
-    y_pred = np.where(pred > 0.5, 1, 0)
-    sub['label'] = y_pred
-    return train, test, sub
-
-
 df = df5.copy()
 df.sort_values('start_time', inplace=True)
-df_fe = FE(df)
+df_fe = FE(df, 15)
 train, test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
 ###################### df5 ###########################
 
 
 ###################### df6 ###########################
-def FE(df):
-    for i in tqdm(list(range(-15, 16))):
-        if i != 0:
-            df['shift_{}'.format(i)] = df['value'].shift(i)
-            df['diff_{}'.format(i)] = df['value'].diff(i)
-            df['rate_{}'.format(i)] = df['value'] / (df['shift_{}'.format(i)]) - 1
-    for i in [2]:
-        df['shift_{}_mean'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].mean(axis=1)
-        df['value-shift_{}_mean'.format(i)] = df['value'] - df['shift_{}_mean'.format(i)]
-    return df
-
-
-def build_model(df_):
-    train = df_.loc[df_['label'].notnull(), :]
-    y_train = train['label'].astype(int)
-    test = df_.loc[df_['label'].isnull(), :]
-    sub = test[['start_time', 'end_time', 'kpi_id']]
-    del df_
-    gc.collect()
-
-    used_cols = [i for i in train.columns if i not in ['label', 'start_time', 'end_time', 'kpi_id', 'kpi_id_num', 'start_time_str', 'start_time_dt']]
-    X_train = train[used_cols]
-    X_test = test[used_cols]
-    
-    dtrain = lgb.Dataset(X_train, y_train)
-
-    lgb_model = lgb.train(
-        params,
-        dtrain,
-        num_boost_round=20,
-        verbose_eval=5)
-    
-    pred = lgb_model.predict(X_test)
-    y_pred = np.where(pred > 0.5, 1, 0)
-    sub['label'] = y_pred
-    return train, test, sub
-
-
 df = df6.copy()
 df.sort_values('start_time', inplace=True)
-df_fe = FE(df)
+df_fe = FE(df, 15)
 train, test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
 ###################### df6 ###########################
 
 
 ###################### df7 ###########################
-def FE(df):
-    for i in tqdm(list(range(-15, 16))):
-        if i != 0:
-            df['shift_{}'.format(i)] = df['value'].shift(i)
-            df['diff_{}'.format(i)] = df['value'].diff(i)
-            df['rate_{}'.format(i)] = df['value'] / (df['shift_{}'.format(i)]) - 1
-
-    for i in [2]:
-        df['shift_{}_mean'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].mean(axis=1)
-        df['value-shift_{}_mean'.format(i)] = df['value'] - df['shift_{}_mean'.format(i)]
-    return df
-
-
-def build_model(df_):
-    train = df_.loc[df_['label'].notnull(), :]
-    y_train = train['label'].astype(int)
-    test = df_.loc[df_['label'].isnull(), :]
-    sub = test[['start_time', 'end_time', 'kpi_id']]
-    del df_
-    gc.collect()
-
-    used_cols = [i for i in train.columns if i not in ['label', 'start_time', 'end_time', 'kpi_id', 'kpi_id_num', 'start_time_str', 'start_time_dt']]
-    X_train = train[used_cols]
-    X_test = test[used_cols]
-    
-    dtrain = lgb.Dataset(X_train, y_train)
-
-    lgb_model = lgb.train(
-        params,
-        dtrain,
-        num_boost_round=20,
-        verbose_eval=5)
-    
-    pred = lgb_model.predict(X_test)
-    y_pred = np.where(pred > 0.5, 1, 0)
-    sub['label'] = y_pred
-    return train, test, sub
-
-
 df = df7.copy()
 df.sort_values('start_time', inplace=True)
-df_fe = FE(df)
+df_fe = FE(df, 15)
 train, test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
 ###################### df7 ###########################
 
 
 ###################### df10 ###########################
-def FE(df):
-    for i in tqdm(list(range(-15, 16))):
-        if i != 0:
-            df['shift_{}'.format(i)] = df['value'].shift(i)
-            df['diff_{}'.format(i)] = df['value'].diff(i)
-            df['rate_{}'.format(i)] = df['value'] / (df['shift_{}'.format(i)]) - 1 
-    for i in range(2, 10):
-        df['shift_{}_mean'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].mean(axis=1)
-        df['shift_{}_sum'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].sum(axis=1)
-        df['shift_{}_max'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].max(axis=1)
-        df['shift_{}_min'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].min(axis=1)
-        df['value-shift_{}_mean'.format(i)] = df['value'] - df['shift_{}_mean'.format(i)]
-    return df
-
-
-def build_model(df_):
-    train = df_.loc[df_['label'].notnull(), :]
-    y_train = train['label'].astype(int)
-    test = df_.loc[df_['label'].isnull(), :]
-    sub = test[['start_time', 'end_time', 'kpi_id']]
-    del df_
-    gc.collect()
-
-    used_cols = [i for i in train.columns if i not in ['label', 'start_time', 'end_time', 'kpi_id', 'kpi_id_num', 'start_time_str', 'start_time_dt']]
-    X_train = train[used_cols]
-    X_test = test[used_cols]
-    
-    dtrain = lgb.Dataset(X_train, y_train)
-
-    lgb_model = lgb.train(
-        params,
-        dtrain,
-        num_boost_round=20,
-        verbose_eval=5)
-    
-    pred = lgb_model.predict(X_test)
-    y_pred = np.where(pred > 0.5, 1, 0)
-    sub['label'] = y_pred
-    return train, test, sub
-
-
 df = df10.copy()
 df.sort_values('start_time', inplace=True)
-df_fe = FE(df)
+df_fe = FE(df, 15)
 train, test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
 ###################### df10 ###########################
 
 
 ###################### df11 ###########################
-def FE(df):
-    for i in tqdm(list(range(-15, 16))):
-        if i != 0:
-            df['shift_{}'.format(i)] = df['value'].shift(i)
-            df['diff_{}'.format(i)] = df['value'].diff(i)
-            df['rate_{}'.format(i)] = df['value'] / (df['shift_{}'.format(i)]) - 1    
-    for i in range(2, 10):
-        df['shift_{}_mean'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].mean(axis=1)
-        df['shift_{}_sum'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].sum(axis=1)
-        df['shift_{}_max'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].max(axis=1)
-        df['shift_{}_min'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].min(axis=1)
-        df['value-shift_{}_mean'.format(i)] = df['value'] - df['shift_{}_mean'.format(i)]
-    return df
-
-
-def build_model(df_):
-    train = df_.loc[df_['label'].notnull(), :]
-    y_train = train['label'].astype(int)
-    test = df_.loc[df_['label'].isnull(), :]
-    sub = test[['start_time', 'end_time', 'kpi_id']]
-    del df_
-    gc.collect()
-
-    used_cols = [i for i in train.columns if i not in ['label', 'start_time', 'end_time', 'kpi_id', 'kpi_id_num', 'start_time_str', 'start_time_dt']]
-    X_train = train[used_cols]
-    X_test = test[used_cols]
-    
-    dtrain = lgb.Dataset(X_train, y_train)
-
-    lgb_model = lgb.train(
-        params,
-        dtrain,
-        num_boost_round=20,
-        verbose_eval=5)
-    
-    pred = lgb_model.predict(X_test)
-    y_pred = np.where(pred > 0.5, 1, 0)
-    sub['label'] = y_pred
-    return train, test, sub
-
-
 df = df11.copy()
 df.sort_values('start_time', inplace=True)
-df_fe = FE(df)
+df_fe = FE(df, 15)
 train, test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
 ###################### df11 ###########################
 
 
 ###################### df14 ###########################
-def FE(df):
-    for i in tqdm(list(range(-15, 16))):
-        if i != 0:
-            df['shift_{}'.format(i)] = df['value'].shift(i)
-            df['diff_{}'.format(i)] = df['value'].diff(i)
-            df['rate_{}'.format(i)] = df['value'] / (df['shift_{}'.format(i)]) - 1  
-    for i in range(2, 10):
-        df['shift_{}_mean'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].mean(axis=1)
-        df['shift_{}_sum'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].sum(axis=1)
-        df['shift_{}_max'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].max(axis=1)
-        df['shift_{}_min'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].min(axis=1)
-        df['value-shift_{}_mean'.format(i)] = df['value'] - df['shift_{}_mean'.format(i)]
-    return df
-
-
-def build_model(df_):
-    train = df_.loc[df_['label'].notnull(), :]
-    y_train = train['label'].astype(int)
-    test = df_.loc[df_['label'].isnull(), :]
-    sub = test[['start_time', 'end_time', 'kpi_id']]
-    del df_
-    gc.collect()
-
-    used_cols = [i for i in train.columns if i not in ['label', 'start_time', 'end_time', 'kpi_id', 'kpi_id_num', 'start_time_str', 'start_time_dt']]
-    X_train = train[used_cols]
-    X_test = test[used_cols]
-    
-    dtrain = lgb.Dataset(X_train, y_train)
-
-    lgb_model = lgb.train(
-        params,
-        dtrain,
-        num_boost_round=20,
-        verbose_eval=5)
-    
-    pred = lgb_model.predict(X_test)
-    y_pred = np.where(pred > 0.5, 1, 0)
-    sub['label'] = y_pred
-    return train, test, sub
-
-
 df = df14.copy()
 df.sort_values('start_time', inplace=True)
-df_fe = FE(df)
+df_fe = FE(df, 15)
 train, test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
 ###################### df14 ###########################
 
 
 ###################### df15 ###########################
-def FE(df):
-    for i in tqdm(list(range(-15, 16))):
-        if i != 0:
-            df['shift_{}'.format(i)] = df['value'].shift(i)
-            df['diff_{}'.format(i)] = df['value'].diff(i)
-            df['rate_{}'.format(i)] = df['value'] / (df['shift_{}'.format(i)]) - 1   
-    for i in range(2, 10):
-        df['shift_{}_mean'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].mean(axis=1)
-        df['shift_{}_sum'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].sum(axis=1)
-        df['shift_{}_max'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].max(axis=1)
-        df['shift_{}_min'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].min(axis=1)
-        df['value-shift_{}_mean'.format(i)] = df['value'] - df['shift_{}_mean'.format(i)]
-    return df
-
-
-def build_model(df_):
-    train = df_.loc[df_['label'].notnull(), :]
-    y_train = train['label'].astype(int)
-    test = df_.loc[df_['label'].isnull(), :]
-    sub = test[['start_time', 'end_time', 'kpi_id']]
-    del df_
-    gc.collect()
-
-    used_cols = [i for i in train.columns if i not in ['label', 'start_time', 'end_time', 'kpi_id', 'kpi_id_num', 'start_time_str', 'start_time_dt']]
-    X_train = train[used_cols]
-    X_test = test[used_cols]
-    
-    dtrain = lgb.Dataset(X_train, y_train)
-
-    lgb_model = lgb.train(
-        params,
-        dtrain,
-        num_boost_round=20,
-        verbose_eval=5)
-    
-    pred = lgb_model.predict(X_test)
-    y_pred = np.where(pred > 0.5, 1, 0)
-    sub['label'] = y_pred
-    return train, test, sub
-
-
 df = df15.copy()
 df.sort_values('start_time', inplace=True)
-df_fe = FE(df)
+df_fe = FE(df, 15)
 train, test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
 ###################### df15 ###########################
 
 
 ###################### df16 ###########################
-def FE(df):
-    for i in tqdm(list(range(-15, 16))):
-        if i != 0:
-            df['shift_{}'.format(i)] = df['value'].shift(i)
-            df['diff_{}'.format(i)] = df['value'].diff(i)
-            df['rate_{}'.format(i)] = df['value'] / (df['shift_{}'.format(i)]) - 1
-    for i in range(2, 10):
-        df['shift_{}_mean'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].mean(axis=1)
-        df['shift_{}_sum'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].sum(axis=1)
-        df['shift_{}_max'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].max(axis=1)
-        df['shift_{}_min'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].min(axis=1)
-        df['value-shift_{}_mean'.format(i)] = df['value'] - df['shift_{}_mean'.format(i)]
-    return df
-
-
-def build_model(df_):
-    train = df_.loc[df_['label'].notnull(), :]
-    y_train = train['label'].astype(int)
-    test = df_.loc[df_['label'].isnull(), :]
-    sub = test[['start_time', 'end_time', 'kpi_id']]
-    del df_
-    gc.collect()
-
-    used_cols = [i for i in train.columns if i not in ['label', 'start_time', 'end_time', 'kpi_id', 'kpi_id_num', 'start_time_str', 'start_time_dt']]
-    X_train = train[used_cols]
-    X_test = test[used_cols]
-    
-    dtrain = lgb.Dataset(X_train, y_train)
-
-    lgb_model = lgb.train(
-        params,
-        dtrain,
-        num_boost_round=20,
-        verbose_eval=5)
-    
-    pred = lgb_model.predict(X_test)
-    y_pred = np.where(pred > 0.5, 1, 0)
-    sub['label'] = y_pred
-    return train, test, sub
-
-
 df = df16.copy()
 df.sort_values('start_time', inplace=True)
-df_fe = FE(df)
+df_fe = FE(df, 15)
 train, test, sub = build_model(df_fe)
 subs = pd.concat([subs, sub], axis=0, ignore_index=True)
 ###################### df16 ###########################
@@ -634,32 +315,6 @@ def FE(df):
         df['shift_{}_min'.format(i)] = df.loc[:, 'shift_-{}'.format(i):'shift_{}'.format(i)].min(axis=1)
         df['value-shift_{}_mean'.format(i)] = df['value'] - df['shift_{}_mean'.format(i)]
     return df
-
-
-def build_model(df_):
-    train = df_.loc[df_['label'].notnull(), :]
-    y_train = train['label'].astype(int)
-    test = df_.loc[df_['label'].isnull(), :]
-    sub = test[['start_time', 'end_time', 'kpi_id']]
-    del df_
-    gc.collect()
-
-    used_cols = [i for i in train.columns if i not in ['label', 'start_time', 'end_time', 'kpi_id', 'kpi_id_num', 'start_time_str', 'start_time_dt']]
-    X_train = train[used_cols]
-    X_test = test[used_cols]
-    
-    dtrain = lgb.Dataset(X_train, y_train)
-
-    lgb_model = lgb.train(
-        params,
-        dtrain,
-        num_boost_round=50,
-        verbose_eval=5)
-    
-    pred = lgb_model.predict(X_test)
-    y_pred = np.where(pred > 0.5, 1, 0)
-    sub['label'] = y_pred
-    return train, test, sub
 
 
 df = pd.concat([df9, df12, df17], axis=0, ignore_index=True)
