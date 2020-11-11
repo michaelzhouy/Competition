@@ -12,6 +12,8 @@ import seaborn as sns
 import lightgbm as lgb
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
+# %matplotlib inline
+# os.chdir("/home/ma-user/work/FE")
 from naie.context import Context as context
 from naie.datasets import data_reference
 from naie.feature_processing import data_flow
@@ -20,6 +22,22 @@ from naie.datasets import get_data_reference
 from naie.context import Context
 from naie.feature_processing.expression import col, cols, cond, f_and, f_not, f_or
 from naie.common.data.typedefinition import StepType, ColumnRelationship, JoinType, ColumnSelector,DynamicColumnsSelectorDetails, StaticColumnsSelectorDetails, ColumnsSelectorDetails, DataProcessMode
+
+
+params = {
+    'objective': 'binary',
+    'boosting': 'gbdt',
+    'metric': 'auc',
+    'learning_rate': 0.1,
+    'num_leaves': 31,
+    'lambda_l1': 0,
+    'lambda_l2': 1,
+    'num_threads': 23,
+    'min_data_in_leaf': 20,
+    'first_metric_only': True,
+    'is_unbalance': True,
+    'max_depth': -1,
+    'seed': 2020}
 
 
 def df_plot(df_train, df_test):
@@ -94,22 +112,6 @@ def build_model(df_):
     sub['label'] = y_pred
     test['label'] = y_pred
     return train, test, sub
-
-
-params = {
-    'objective': 'binary',
-    'boosting': 'gbdt',
-    'metric': 'auc',
-    'learning_rate': 0.1,
-    'num_leaves': 31,
-    'lambda_l1': 0,
-    'lambda_l2': 1,
-    'num_threads': 23,
-    'min_data_in_leaf': 20,
-    'first_metric_only': True,
-    'is_unbalance': True,
-    'max_depth': -1,
-    'seed': 2020}
 
 
 print(time.strftime('%Y%m%d'))
