@@ -310,45 +310,51 @@ data = data.merge(tmp, on=['weekday', 'hour'], how='left')
 del tmp
 gc.collect()
 
-# sp_kpi = [1, 3, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17]
+sp_kpi = [1, 3, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17]
 
-# i = 0
-# df = train.loc[train['kpi_id_num'] == i, :]
-# df_test = test.loc[test['kpi_id_num'] == i, :]
-# sub0 = df_test[['start_time', 'end_time', 'kpi_id']]
-# sub0['label'] = 0
+i = 0
+df = train.loc[train['kpi_id_num'] == i, :]
+df_test = test.loc[test['kpi_id_num'] == i, :]
+sub0 = df_test[['start_time', 'end_time', 'kpi_id']]
+sub0['label'] = 0
 
-# i = 2
-# df = train.loc[train['kpi_id_num'] == i, :]
-# df_test = test.loc[test['kpi_id_num'] == i, :]
-# sub2 = df_test[['start_time', 'end_time', 'kpi_id']]
-# sub2['label'] = np.where(df_test['value'] < 90, 1, 0)
+i = 2
+df = train.loc[train['kpi_id_num'] == i, :]
+df_test = test.loc[test['kpi_id_num'] == i, :]
+sub2 = df_test[['start_time', 'end_time', 'kpi_id']]
+sub2['label'] = np.where(df_test['value'] < 90, 1, 0)
 
-# i = 4
-# df = train.loc[train['kpi_id_num'] == i, :]
-# df_test = test.loc[test['kpi_id_num'] == i, :]
-# sub4 = df_test[['start_time', 'end_time', 'kpi_id']]
-# sub4['label'] = 0
+i = 3
+df = train.loc[train['kpi_id_num'] == i, :]
+df_test = test.loc[test['kpi_id_num'] == i, :]
+sub3 = df_test[['start_time', 'end_time', 'kpi_id']]
+sub3['label'] = np.where(df_test['value'] < 60, 1, 0)
 
-# i = 13
-# df = train.loc[train['kpi_id_num'] == i, :]
-# df_test = test.loc[test['kpi_id_num'] == i, :]
-# sub13 = df_test[['start_time', 'end_time', 'kpi_id']]
-# sub13['label'] = np.where(df_test['value'] > 1000, 1, 0)
+i = 4
+df = train.loc[train['kpi_id_num'] == i, :]
+df_test = test.loc[test['kpi_id_num'] == i, :]
+sub4 = df_test[['start_time', 'end_time', 'kpi_id']]
+sub4['label'] = 0
 
-# i = 18
-# df = train.loc[train['kpi_id_num'] == i, :]
-# df_test = test.loc[test['kpi_id_num'] == i, :]
-# sub18 = df_test[['start_time', 'end_time', 'kpi_id']]
-# sub18['label'] = np.where(df_test['value'] > 1000, 1, 0)
+i = 13
+df = train.loc[train['kpi_id_num'] == i, :]
+df_test = test.loc[test['kpi_id_num'] == i, :]
+sub13 = df_test[['start_time', 'end_time', 'kpi_id']]
+sub13['label'] = np.where(df_test['value'] > 1000, 1, 0)
 
-# i = 19
-# df = train.loc[train['kpi_id_num'] == i, :]
-# df_test = test.loc[test['kpi_id_num'] == i, :]
-# sub19 = df_test[['start_time', 'end_time', 'kpi_id']]
-# sub19['label'] = np.where(df_test['value'] < 10000, 1, 0)
+i = 18
+df = train.loc[train['kpi_id_num'] == i, :]
+df_test = test.loc[test['kpi_id_num'] == i, :]
+sub18 = df_test[['start_time', 'end_time', 'kpi_id']]
+sub18['label'] = np.where(df_test['value'] > 1000, 1, 0)
 
-# subs = pd.concat([sub0, sub2, sub4, sub13, sub18, sub19])
+i = 19
+df = train.loc[train['kpi_id_num'] == i, :]
+df_test = test.loc[test['kpi_id_num'] == i, :]
+sub19 = df_test[['start_time', 'end_time', 'kpi_id']]
+sub19['label'] = np.where(df_test['value'] < 10000, 1, 0)
+
+subs = pd.concat([sub0, sub2, sub3, sub4, sub13, sub18, sub19], axis=0, ignore_index=True)
 
 # for kpi in sp_kpi:
 #     if kpi == 1:
@@ -356,6 +362,15 @@ gc.collect()
 #     else:
 #         df2 = data.loc[data['kpi_id_num'] == kpi, :]
 #         df = pd.concat([df1, df2])
+
+for kpi in [9, 12, 17]:
+    if kpi == 9:
+        df1 = data.loc[data['kpi_id_num'] == kpi, :]
+    else:
+        df2 = data.loc[data['kpi_id_num'] == kpi, :]
+        df1 = pd.concat([df1, df2])
+
+df1.sort_values(['kpi_id', 'start_time'], inplca=True)
 
 # df = df.groupby('kpi_id', as_index=False).apply(lambda x: x.sort_values('start_time'))
 
