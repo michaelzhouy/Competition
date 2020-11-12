@@ -1,4 +1,4 @@
-## merchant_id
+## 商家相关特征群
 1. 每个商家的交易总次数(date!='null')
 2. 每个商家的用券交易总次数(date!='null' and coupon_id!='null')
 3. 每个商家发放的优惠券的数量(coupon_id!='null')
@@ -6,4 +6,16 @@
 5. 商家发放优惠券的使用率(用券交易的次数/发放优惠券的总数)
 6. 商家用券交易的占比(用券交易的次数/交易总次数)
 
-## user_id
+## 用户相关特征群
+1. 每个用户交易的商家数(date!='null')
+2. 每个用户使用优惠券交易中，统计与商家距离的max, min, mean, median(date!='null' and coupon_id!='null' and distance!='null')
+3. 每个用户使用优惠券消费的次数(date!='null' and coupon_id!='null')
+4. 每个用户消费的总次数(date!='null')
+5. 每个用户领券的总数(coupon_id!='null')
+6. 用户从领券到用券的时间间隔，并统计其max, min, mean, median
+7. 用户用券消费的占比(用券消费次数/用户消费的总数)
+8. 用户优惠券的使用率(用券消费次数/用户领券的总数)
+
+## 用户和商家关系特征群
+1. 一个用户在一个商家交易的总次数
+2. 
