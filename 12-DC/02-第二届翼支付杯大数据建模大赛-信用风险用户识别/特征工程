@@ -22,5 +22,66 @@
 4. 数值特征做最大最小缩放
 5. 数值特征两两相加
 6. 业务特征：product7_fail_ratio, card_cnt等等
-7. 欺诈率：平均值编码
+7. 欺诈率：均值编码
+```python
+def stat(df, df_merge, group_by, agg):
+    group = df.groupby(group_by).agg(agg)
+
+    columns = []
+    for on, methods in agg.items():
+        for method in methods:
+            columns.append('{}_{}_{}'.format('_'.join(group_by), on, method))
+    group.columns = columns
+    group.reset_index(inplace=True)
+    df_merge = df_merge.merge(group, on=group_by, how='left')
+
+    del (group)
+    gc.collect()
+    return df_merge
+
+
+def statis_feat(df_know, df_unknow):
+    df_unknow = stat(df_know, df_unknow, ['province'], {'label': ['mean']})
+    df_unknow = stat(df_know, df_unknow, ['city'], {'label': ['mean']})
+    df_unknow = stat(df_know, df_unknow, [
+                     'city', 'level'], {'label': ['mean']})
+    df_unknow = stat(df_know, df_unknow, ['op_device'], {'label': ['mean']})
+    df_unknow = stat(df_know, df_unknow, [
+                     'age', 'op_device'], {'label': ['mean']})
+    df_unknow = stat(df_know, df_unknow, ['using_time'], {'label': ['mean']})
+    df_unknow = stat(df_know, df_unknow, [
+                     'city', 'op_device'], {'label': ['mean']})
+    df_unknow = stat(df_know, df_unknow, ['age', 'city'], {'label': ['mean']})
+    df_unknow = stat(df_know, df_unknow, [
+                     'op_device', 'level'], {'label': ['mean']})
+
+    return df_unknow
+
+
+df_train = df_feature[~df_feature['label'].isnull()]
+df_train = df_train.reset_index(drop=True)
+df_test = df_feature[df_feature['label'].isnull()]
+
+df_stas_feat = None
+kf = StratifiedKFold(n_splits=5, random_state=seed, shuffle=True)
+for train_index, val_index in kf.split(df_train, df_train['label']):
+    df_fold_train = df_train.iloc[train_index]
+    df_fold_val = df_train.iloc[val_index]
+
+    df_fold_val = statis_feat(df_fold_train, df_fold_val)
+    df_stas_feat = pd.concat([df_stas_feat, df_fold_val], axis=0)
+
+    del (df_fold_train)
+    del (df_fold_val)
+    gc.collect()
+
+df_test = statis_feat(df_train, df_test)
+df_feature = pd.concat([df_stas_feat, df_test], axis=0)
+df_feature = df_feature.reset_index(drop=True)
+
+del (df_stas_feat)
+del (df_train)
+del (df_test)
+gc.collect()
+```
 8. 分组统计特征：groupby(cat_col)[num_col].mean()
