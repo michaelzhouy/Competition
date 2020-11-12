@@ -1,0 +1,9 @@
+## merchant_id
+1. 每个商家的交易总次数(date!='null')
+2. 每个商家的用券交易总次数(date!='null' and coupon_id!='null')
+3. 每个商家发放的优惠券的数量(coupon_id!='null')
+4. 每个商家包含使用优惠券的交易中，统计与用户距离的max, min, mean, median(date!='null' and coupon_id!='null' and distance!='null')
+5. 商家发放优惠券的使用率(用券交易的次数/发放优惠券的总数)
+6. 商家用券交易的占比(用券交易的次数/交易总次数)
+
+## user_id
