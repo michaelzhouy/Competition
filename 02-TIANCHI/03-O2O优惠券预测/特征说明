@@ -1,0 +1,32 @@
+## 数据分析
+1. 数据说明
+
+列名 | 说明
+---|---
+user_id | 用户ID
+merchant_id | 商家ID
+coupon_id | 优惠券ID
+discount | 折扣，包括0.6或30:5
+distance | 距离
+date_received | 领券日期
+date | 用券日期，测试集中没有
+2. 时间
+- 训练集中领券日期是到6月15日，用券日期是到6月30日
+
+数据集 | 领券日期范围 | 用券日期范围
+---|---|---
+train | 20160101-20160615 | 20160101-20160630
+test | 20160701-20160731 | -
+3. user_id, merchant_id, coupon_id在训练集和测试集中的重合度分析
+4. value_counts分析
+```python
+plt.xticks(size='small', rotation=68, fontsize=8)
+plt.plot(off_train['discount_rate'].value_counts(), linewidth=2)
+```
+5. 优惠券的处理，包括0.6, 30:5
+- 折扣率，将30:5转换为折扣率
+- 是否满减，即是否包含:(冒号)
+- 满减的条件，即冒号的前面的值
+- 满减的优惠值，即冒号后面的值
+6. label
+- if (用券日期-领券日期) <= 15
