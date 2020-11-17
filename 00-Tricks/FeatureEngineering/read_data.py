@@ -5,6 +5,7 @@
 import numpy as np
 import pandas as pd
 import os
+import gc
 
 
 # 读取压缩文件
