@@ -237,3 +237,11 @@ for i in range(1, 4):
     del tmp_df['rank']
     tmp_df.columns = ['ID', 'rank{}_mode_lat'.format(i), 'rank{}_mode_lon'.format(i), 'rank{}_mode_cnt'.format(i)]
     group_df = group_df.merge(tmp_df, on='ID', how='left')
+
+
+def pivot(df, index, columns, func):
+    df['tmp'] = 1
+    tmp = df.pivot_table(values='tmp', index=index, columns=columns, aggfunc=func).fillna(0)
+    tmp.columns = ['{}_{}'.format(columns, f) for f in tmp.columns]
+    tmp.reset_index(inplace=True)
+    return tmp
