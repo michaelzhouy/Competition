@@ -2,8 +2,8 @@
 2. oplocdistrict:行政区划代码
 3. industryphy:行业类别代码
 4. industryco:行业细类代码
-5. dom:经营地址
-6. opscope:经营范围
+5. dom:经营地址，取值很多，考虑其他编码
+6. opscope:经营范围，中文考虑其他编码
 7. enttype:企业类型
 8. enttypeitem:企业类型小类
 9. opfrom:经营期限起
