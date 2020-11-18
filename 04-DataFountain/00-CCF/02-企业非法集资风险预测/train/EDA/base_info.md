@@ -31,3 +31,16 @@
 31. forregcap:注册资本（外方）
 32. congro:投资总额
 33. enttypegb:企业（机构）类型
+
+
+cat_cols = ['oplocdistrict', 'industryphy', 'industryco', 'enttype', 'enttypeitem', 'state', 'orgid', 'jobid', 'regtype', 'opform', 'venind', 'enttypeminu', 'oploc', 'enttypegb']
+two_values = ['adbusign', 'townsign', 'compform', 'protype']
+num_cols = ['empnum', 'parnum', 'exenum', 'regcap', 'reccap', 'forreccap', 'forregcap', 'congro']
+
+single_cols = ['ptbusscope', 'midpreindcode']
+many_cols = ['dom', 'opscope']
+dt_cols = ['opfrom', 'opto']
+
+null_to_drop = ['midpreindcode', 'ptbusscope', 'protype', 'forreccap', 'congro', 'forregcap', 'exenum', 'parnum']
+
+auc_to_drop = ['adbusign', 'regtype']
