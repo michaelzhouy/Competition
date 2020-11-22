@@ -1,19 +1,15 @@
 import numpy as np
 import pandas as pd
-
 import lightgbm as lgb
 import matplotlib.pyplot as plt
 import seaborn as sns
-
 from sklearn.metrics import roc_auc_score
 from multiprocessing import cpu_count
 from tqdm.notebook import tqdm
-
 # these imports are used to convert the tree to PNG
 from cairosvg import svg2png
 from PIL import Image
 from io import BytesIO
-
 import gc
 import os
 import sys
