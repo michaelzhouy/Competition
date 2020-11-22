@@ -53,8 +53,8 @@ def count_encode(df, cat_cols):
     """
     for col in cat_cols:
         print(col)
-        vc = df[col].value_counts(dropna=True, normalize=True)
-        df[col + '_count'] = df[col].map(vc).astype('float32')
+        vc = df[col].value_counts(dropna=True)
+        df[col + '_count'] = df[col].apply(lambda x: -999 if vc[x] < 10 else x)
     return df
 
 
