@@ -33,7 +33,7 @@ gc.collect()
 
 content_mean = train_df.groupby('content_id')['answered_correctly'].agg(['mean'])
 
-
+# 2020-11-22
 def get_state():
     # create DataFrame of features
     features_df = pd.DataFrame(index=get_index_np())
