@@ -37,10 +37,12 @@
 21. opform:经营方式
 - 34个值
 22. ptbusscope:兼营范围
+- 全空
 23. venind:风险行业
 24. enttypeminu:企业类型细类
-25. midpreindcode:中西部优势产业代码
 - 27个值
+25. midpreindcode:中西部优势产业代码
+- 全空
 26. protype:项目类型
 27. oploc:经营场所
 - 5351个值
