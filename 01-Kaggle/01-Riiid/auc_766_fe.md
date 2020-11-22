@@ -5,4 +5,4 @@
 4. 每个用户做每道题的次数
 
 ## get_user_data和update_user_data
-1. 对测试集做的
+1. 对测试集做的，每一行根据本身的结果和state进行更新
