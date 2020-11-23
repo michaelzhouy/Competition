@@ -35,4 +35,9 @@ for i in str_cols:
 
 
 joblib.dump(res,'./res.pkl')
-joblib.load('./res.pkl)
+joblib.load('./res.pkl')
+
+
+tmp = train_df.groupby('user_id', as_index=False)['answered_correctly'].agg({
+
+})
