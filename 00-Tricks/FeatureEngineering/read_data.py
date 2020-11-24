@@ -24,11 +24,6 @@ pd.read_hdf('data.h5')
 
 # 节省内存读文件
 def reduce_mem_usage(df):
-    """
-    iterate through all the columns of a dataframe and modify the data type to reduce memory usage.
-    @param df:
-    @return:
-    """
     start_mem = df.memory_usage().sum() / 1024 ** 2
     print('Memory usage of dataframe is {:.2f} MB'.format(start_mem))
 
