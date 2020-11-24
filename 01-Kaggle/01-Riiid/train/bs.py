@@ -81,9 +81,6 @@ del questions_df
 gc.collect()
 
 
-def get_index_np(N_ROWS = 99271300):
-    return np.arange(N_ROWS) # speeds up dataframe creation
-
 res = {}
 content_mean = train_df.groupby('content_id')['answered_correctly'].agg(['mean'])['mean'].to_dict()
 train_df['mean_content_accuracy'] = train_df['content_id'].map(content_mean)
