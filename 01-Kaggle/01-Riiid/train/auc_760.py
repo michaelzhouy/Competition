@@ -16,11 +16,11 @@ validaten_flg = False
 def add_user_feats(df, answered_correctly_sum_u_dict, count_u_dict):
     acsu = np.zeros(len(df), dtype=np.int32)
     cu = np.zeros(len(df), dtype=np.int32)
-    for cnt, row in enumerate(tqdm(df[['user_id', 'answered_correctly']].values)):
-        acsu[cnt] = answered_correctly_sum_u_dict[row[0]]  # 回答正确的字典
-        cu[cnt] = count_u_dict[row[0]]  # 回答正确的字典
-        answered_correctly_sum_u_dict[row[0]] += row[1]  # 开始计数，回答正确的数
-        count_u_dict[row[0]] += 1  # 总共做的题目
+    for cnt, (user_id, answered_correctly) in enumerate(tqdm(df[['user_id', 'answered_correctly']].values)):
+        acsu[cnt] = answered_correctly_sum_u_dict[user_id]  # 回答正确的字典
+        cu[cnt] = count_u_dict[user_id]  # 回答正确的字典
+        answered_correctly_sum_u_dict[user_id] += answered_correctly  # 开始计数，回答正确的数
+        count_u_dict[user_id] += 1  # 总共做的题目
     user_feats_df = pd.DataFrame({'answered_correctly_sum_u': acsu, 'count_u': cu})
     user_feats_df['answered_correctly_avg_u'] = user_feats_df['answered_correctly_sum_u'] / user_feats_df['count_u']
     # 回答正确的比例
@@ -31,9 +31,9 @@ def add_user_feats(df, answered_correctly_sum_u_dict, count_u_dict):
 def add_user_feats_without_update(df, answered_correctly_sum_u_dict, count_u_dict):
     acsu = np.zeros(len(df), dtype=np.int32)
     cu = np.zeros(len(df), dtype=np.int32)
-    for cnt, row in enumerate(df[['user_id']].values):
-        acsu[cnt] = answered_correctly_sum_u_dict[row[0]]
-        cu[cnt] = count_u_dict[row[0]]
+    for cnt, user_id in enumerate(df[['user_id']].values):
+        acsu[cnt] = answered_correctly_sum_u_dict[user_id]
+        cu[cnt] = count_u_dict[user_id]
     user_feats_df = pd.DataFrame({'answered_correctly_sum_u': acsu, 'count_u': cu})
     user_feats_df['answered_correctly_avg_u'] = user_feats_df['answered_correctly_sum_u'] / user_feats_df['count_u']
     df = pd.concat([df, user_feats_df], axis=1)
