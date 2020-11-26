@@ -32,16 +32,10 @@ def arithmetic(df, num_cols):
 
 
 def low_freq_encode(df, cat_cols, freq=2):
-    """
-    将类别特征取值较少的归为一类
-    @param df:
-    @param cat_cols:
-    @param freq: 取值频次
-    @return:
-    """
     for i in cat_cols:
         name_dict = dict(zip(*np.unique(df[i], return_counts=True)))
-        df['{}_low_freq'.format(i)] = df[i].apply(lambda x: -999 if name_dict[x] < freq else x)
+        df['{}_low_freq'.format(i)] = df[i].apply(lambda x: -999 if name_dict[x] < freq else name_dict[x])
+    return df
 
 
 def count_encode(df, cat_cols):
