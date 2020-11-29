@@ -1,16 +1,15 @@
-"""
-Mean Encoder
-"""
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import StratifiedKFold, KFold
+from itertools import product
+from tqdm import tqdm
 
 # 调用方法
 ME = MeanEncoder(categorical_features=cols, n_splits=5, target_type='regression', prior_weight_func=None)
 X_data = ME.fit_transform(X_data, Y_data)
 X_test = ME.transform(X_test)
 
-import numpy as np
-import pandas as pd
-from sklearn.model_selection import StratifiedKFold, KFold
-from itertools import product
+
 class MeanEncoder:
     def __init__(self, categorical_features, n_splits=10, target_type='classification', prior_weight_func=None):
         """
@@ -129,19 +128,8 @@ class MeanEncoder:
                 X_new[nf_name] /= self.n_splits
  
         return X_new
-        
-
-"""
-Count Encoder
-"""
 
 
-def count_coding(df, fea_col):
-    for f in fea_col:
-        df[f + '_count'] = df[f].map(df[f].value_counts())
-    return df
-    
-  
 """
 Target Encoder
 """
