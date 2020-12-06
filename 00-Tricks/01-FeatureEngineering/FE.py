@@ -39,16 +39,10 @@ def low_freq_encode(df, cat_cols, freq=2):
 
 
 def count_encode(df, cat_cols):
-    """
-    类别特征的频次编码
-    @param df:
-    @param cat_cols:
-    @return:
-    """
     for col in cat_cols:
         print(col)
         vc = df[col].value_counts(dropna=True)
-        df[col + '_count'] = df[col].apply(lambda x: -999 if vc[x] < 10 else x)
+        df[col + '_count'] = df[col].apply(lambda x: -999 if vc[x] < 10 else vc[x])
     return df
 
 
