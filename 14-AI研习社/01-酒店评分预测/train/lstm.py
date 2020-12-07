@@ -83,7 +83,6 @@ layer = Dropout(0.5)(layer)
 layer = Dense(5, activation="softmax", name="FC2")(layer)
 model = Model(inputs=inputs, outputs=layer)
 print(model.summary())
-# model.compile(loss="categorical_crossentropy",optimizer=RMSprop(),metrics=["accuracy"])
 model.compile(loss="categorical_crossentropy", optimizer='Adam', metrics=["accuracy"])
 
 model_fit = model.fit(
