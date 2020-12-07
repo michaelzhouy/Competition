@@ -6,7 +6,7 @@
 from catboost import CatBoostRegressor
 
 
-def train(iterations=22000, depth=10, x_train, y_train, x_valid, y_valid, test):
+def train(iterations=22000, depth=10, x_train, y_train, x_valid, y_valid, test, cat_cols):
     model = CatBoostRegressor(
         iterations=iterations,
         learning_rate=0.03,
@@ -23,5 +23,3 @@ def train(iterations=22000, depth=10, x_train, y_train, x_valid, y_valid, test):
               cat_features=cat_cols)
 
     result = model.predict(test)
-
-train()
