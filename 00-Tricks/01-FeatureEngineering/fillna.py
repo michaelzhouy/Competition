@@ -9,7 +9,7 @@ from sklearn.impute import SimpleImputer
 df['col'].fillna(df['col'].mode()[0], inplace=True)
 
 # 2. 用分组后的众数填充缺失值
-df['col1'] = df.groupby(['col2', 'col3'])['col1'].transform(lambda x: x.fillna(x.mode()[0]))`
+df['col1'] = df.groupby(['col2', 'col3'])['col1'].transform(lambda x: x.fillna(x.mode()[0]))
 
 # 3. 用分组后的中位数填充缺失值
 df['col1'] = df.groupby(['col2', 'col3'])['col1'].transform(lambda x: x.fillna(x.median()))
