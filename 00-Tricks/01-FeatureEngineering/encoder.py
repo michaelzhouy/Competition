@@ -11,9 +11,6 @@ from sklearn.preprocessing import LabelEncoder
 from scipy import stats
 
 
-
-
-
 def train_test_label_encode(df, cat_col, type='save', path='./'):
     """
     train和test分开label encode
