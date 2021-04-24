@@ -18,7 +18,7 @@ def arithmetic(df, num_cols):
         for j in range(i + 1, len(num_cols)):
             colname_add = '{}_{}_add'.format(num_cols[i], num_cols[j])
             colname_substract = '{}_{}_subtract'.format(num_cols[i], num_cols[j])
-            colname_multiply = '{}_{}c_multiply'.format(num_cols[i], num_cols[j])
+            colname_multiply = '{}_{}_multiply'.format(num_cols[i], num_cols[j])
             df[colname_add] = df[num_cols[i]] + df[num_cols[j]]
             df[colname_substract] = df[num_cols[i]] - df[num_cols[j]]
             df[colname_multiply] = df[num_cols[i]] * df[num_cols[j]]
