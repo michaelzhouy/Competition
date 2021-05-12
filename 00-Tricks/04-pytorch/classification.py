@@ -73,8 +73,8 @@ TOTAL_EPOCHS = 100
 losses = []
 for epoch in range(TOTAL_EPOCHS):
     for i, (x, y) in enumerate(train_dl):
-        x = x.float().to(DEVICE)  # 输入必须未float类型
-        y = y.long().to(DEVICE)  # 结果标签必须未long类型
+        x = x.float().to(DEVICE)  # 输入必须为float类型
+        y = y.long().to(DEVICE)  # 结果标签必须为long类型
         # 清零
         optimizer.zero_grad()
         outputs = model(x)
