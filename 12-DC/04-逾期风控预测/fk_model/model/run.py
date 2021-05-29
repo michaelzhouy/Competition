@@ -3,7 +3,6 @@ import sys
 print(sys.path)
 import numpy as np
 import pandas as pd
-# from sklearn.metrics import f1_score
 import lightgbm as lgb
 """
 ===========================================================
@@ -38,11 +37,12 @@ def main(to_pred_dir,result_save_path):
 
     # to_pred_file_list = [os.path.join(to_pred_dir,f) for f in os.listdir(to_pred_dir)]
 
-    payment_b = pd.read_csv(payment_path, index_col=None)
-    payment_b['DLSBH'] = payment_b['DLSBH'].map(lambda x: int(x[-2:]))
-    payment_b['QC/RZQS'] = payment_b['QC'] / payment_b['RZQS']
+    payment_a = pd.read_csv(payment_path, index_col=None)
+    payment_a['DLSBH'] = payment_a['DLSBH'].map(lambda x: int(x[-2:]))
+    payment_a['QC/RZQS'] = payment_a['QC'] / payment_a['RZQS']
+    payment_a['RZQS-QC'] = payment_a['RZQS'] - payment_a['QC']
 
-    X = payment_b.drop(['device_code', 'customer_id', 'Y'], axis=1)
+    X = payment_a.drop(['device_code', 'customer_id', 'overdue', 'Y'], axis=1)
 
     cwd = sys.argv[0]
     print('cwd-----------')
@@ -53,7 +53,7 @@ def main(to_pred_dir,result_save_path):
 
     y_pred = np.where(y_pred >= 0.5, 1, 0)
 
-    __result = payment_b.loc[:, ["SSMONTH", "device_code", "customer_id"]]
+    __result = payment_a.loc[:, ["SSMONTH", "device_code", "customer_id"]]
     __result["Y"] = y_pred
     #__result.sort_values(by="SSMONTH",ascending=False,inplace=True)
     result = __result[__result["SSMONTH"]==201904]
