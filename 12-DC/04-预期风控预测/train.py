@@ -1,6 +1,9 @@
 !rm -r /home/workspace/data
 !ls /home/workspace/input/*/*.zip | xargs -n1 unzip -d /home/workspace/data
 
+!rm -r /home/workspace/project/model
+!mkdir /home/workspace/project/model
+
 !pip install lightgbm
 
 import numpy as np
@@ -16,6 +19,8 @@ payment_a = payment_a.loc[payment_a['Y'].notnull(), :]
 
 payment_a['DLSBH'] = payment_a['DLSBH'].map(lambda x: int(x[-2:]))
 payment_a['Y'] = payment_a['Y'].map(int)
+payment_a['QC/RZQS'] = payment_a['QC'] / payment_a['RZQS']
+# payment_a['notified_times'] = payment_a.groupby(['customer_id', 'device_id'])['notified'].sum()
 
 payment_a_train = payment_a.loc[payment_a['SSMONTH'] != 201904, :]
 payment_a_valid = payment_a.loc[payment_a['SSMONTH'] == 201904, :]
@@ -59,10 +64,8 @@ model = lgb.train(
     num_boost_round=1000000,
     early_stopping_rounds=200,
     verbose_eval=300,
-    feval=lgb_f1_score
+    feval=lgb_f1_score,
+    categorical_feature=cat_cols
 )
-
-!rm -r /home/workspace/project/model
-!mkdir /home/workspace/project/model
 
 model.save_model('/home/workspace/project/model/lgb.txt')

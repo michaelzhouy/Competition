@@ -40,6 +40,7 @@ def main(to_pred_dir,result_save_path):
 
     payment_b = pd.read_csv(payment_path, index_col=None)
     payment_b['DLSBH'] = payment_b['DLSBH'].map(lambda x: int(x[-2:]))
+    payment_b['QC/RZQS'] = payment_b['QC'] / payment_b['RZQS']
 
     X = payment_b.drop(['device_code', 'customer_id', 'Y'], axis=1)
 
