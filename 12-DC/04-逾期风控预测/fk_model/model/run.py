@@ -27,9 +27,9 @@ def main(to_pred_dir,result_save_path):
         to_pred_path: 需要预测的文件夹路径
         to_save_path: 预测结果文件保存路径
     """
-    iot_path = os.path.join(to_pred_dir,"iot_b.csv")
-    payment_path = os.path.join(to_pred_dir,"payment_b.csv")
-    orders_path = os.path.join(to_pred_dir,"orders_b.csv")
+    iot_path = os.path.join(to_pred_dir, "iot_b.csv")
+    payment_path = os.path.join(to_pred_dir, "payment_b.csv")
+    orders_path = os.path.join(to_pred_dir, "orders_b.csv")
     """
         本示例代码省略模型过程,且假设预测结果全为1
         选手代码需要自己构建模型,并通过模型预测结果
@@ -38,6 +38,16 @@ def main(to_pred_dir,result_save_path):
     # to_pred_file_list = [os.path.join(to_pred_dir,f) for f in os.listdir(to_pred_dir)]
 
     payment_a = pd.read_csv(payment_path, index_col=None)
+    orders_a = pd.read_csv(orders_path, index_col=None)
+
+    payment_a = pd.merge(payment_a, orders_a, on=['device_code', 'customer_id'], how='left')
+    payment_a['today'] = '2021-05-30'
+
+    payment_a['posting_date_diff'] = (
+                pd.to_datetime(payment_a['today']) - pd.to_datetime(payment_a['posting_date'])).apply(lambda x: x.days)
+    payment_a['SSMONTH_str'] = payment_a['SSMONTH'].map(lambda x: str(x)[:4] + '-' + str(x)[4:6] + '-' + '01')
+    payment_a['SSMONTH-posting_date'] = (pd.to_datetime(payment_a['SSMONTH_str']) - pd.to_datetime(payment_a['posting_date'])).apply(lambda x: x.days)
+    payment_a.drop(['today', 'posting_date', 'SSMONTH_str'], axis=1, inplace=True)
     payment_a['DLSBH'] = payment_a['DLSBH'].map(lambda x: int(x[-2:]))
     payment_a['QC/RZQS'] = payment_a['QC'] / payment_a['RZQS']
     payment_a['RZQS-QC'] = payment_a['RZQS'] - payment_a['QC']
