@@ -4,7 +4,6 @@ print(sys.path)
 import numpy as np
 import pandas as pd
 import lightgbm as lgb
-from sklearn.metrics import f1_score
 """
 ===========================================================
 # 以上为导入依赖包, 所需的依赖包请在requirements.txt中列明 
@@ -36,9 +35,13 @@ def main(to_pred_dir, result_save_path):
         本示例代码省略模型过程,且假设预测结果全为1
         选手代码需要自己构建模型,并通过模型预测结果
     """
-    iot_a_path = os.path.join(sys.path[0], "iot_a.csv")
-    payment_a_path = os.path.join(sys.path[0], "payment_a.csv")
-    orders_a_path = os.path.join(sys.path[0], "orders_a.csv")
+    train_path = sys.path[0] + '/'
+    # iot_a_path = os.path.join(sys.path[0], "iot_a.csv")
+    # payment_a_path = os.path.join(sys.path[0], "payment_a.csv")
+    # orders_a_path = os.path.join(sys.path[0], "orders_a.csv")
+    iot_a_path = train_path + "iot_a.csv"
+    payment_a_path = train_path + "payment_a.csv"
+    orders_a_path = train_path + "orders_a.csv"
 
     payment_a = pd.read_csv(payment_a_path, index_col=None)
     orders_a = pd.read_csv(orders_a_path, index_col=None)
@@ -140,8 +143,8 @@ def main(to_pred_dir, result_save_path):
     params = {
         'objective': 'binary',
         'boosting': 'gbdt',
-        # 'metric': 'auc',
-        'metric': 'None',  # 用自定义评估函数是将metric设置为'None'
+        'metric': 'auc',
+        # 'metric': 'None',  # 用自定义评估函数是将metric设置为'None'
         'learning_rate': 0.1,
         'num_leaves': 31,
         'lambda_l1': 0,
@@ -154,10 +157,10 @@ def main(to_pred_dir, result_save_path):
         'seed': 2021
     }
 
-    def lgb_f1_score(y_hat, data):
-        y_true = data.get_label()
-        y_hat = np.where(y_hat >= 0.5, 1, 0)
-        return 'f1', f1_score(y_true, y_hat), True
+    # def lgb_f1_score(y_hat, data):
+    #     y_true = data.get_label()
+    #     y_hat = np.where(y_hat >= 0.5, 1, 0)
+    #     return 'f1', f1_score(y_true, y_hat), True
 
     model = lgb.train(
         params,
@@ -166,7 +169,7 @@ def main(to_pred_dir, result_save_path):
         num_boost_round=1000000,
         early_stopping_rounds=200,
         verbose_eval=300,
-        feval=lgb_f1_score,
+        # feval=lgb_f1_score,
         categorical_feature=cat_cols
     )
 
