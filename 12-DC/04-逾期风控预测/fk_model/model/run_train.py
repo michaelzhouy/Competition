@@ -29,32 +29,33 @@ def main(to_pred_dir, result_save_path):
         to_pred_path: 需要预测的文件夹路径
         to_save_path: 预测结果文件保存路径
     """
-    iot_b_path = os.path.join(to_pred_dir, "iot_b.csv")
-    payment_b_path = os.path.join(to_pred_dir, "payment_b.csv")
-    orders_b_path = os.path.join(to_pred_dir, "orders_b.csv")
+    iot_b_path = os.path.join(to_pred_dir, "iot_a.csv")
+    payment_b_path = os.path.join(to_pred_dir, "payment_a.csv")
+    orders_b_path = os.path.join(to_pred_dir, "orders_a.csv")
     """
         本示例代码省略模型过程,且假设预测结果全为1
         选手代码需要自己构建模型,并通过模型预测结果
     """
-    iot_a_path = os.path.join(sys.path[0], "iot_a.csv")
-    payment_a_path = os.path.join(sys.path[0], "payment_a.csv")
-    orders_a_path = os.path.join(sys.path[0], "orders_a.csv")
+    # iot_a_path = os.path.join(sys.path[0], "iot_b.csv")
+    # payment_a_path = os.path.join(sys.path[0], "payment_b.csv")
+    # orders_a_path = os.path.join(sys.path[0], "orders_b.csv")
 
-    payment_a = pd.read_csv(payment_a_path, index_col=None)
-    orders_a = pd.read_csv(orders_a_path, index_col=None)
-    iot_a = pd.read_csv(iot_a_path, index_col=None)
-    payment_b = pd.read_csv(payment_b_path, index_col=None)
-    orders_b = pd.read_csv(orders_b_path, index_col=None)
-    iot_b = pd.read_csv(iot_b_path, index_col=None)
+    payment_a = pd.read_csv(payment_b_path, index_col=None)
+    orders_a = pd.read_csv(orders_b_path, index_col=None)
+    iot_a = pd.read_csv(iot_b_path, index_col=None)
 
     payment_a = payment_a.loc[payment_a['Y'].notnull(), :]
     payment_a['Y'] = payment_a['Y'].map(int)
     payment_a['is_test'] = 0
-    payment_b['is_test'] = 1
 
-    payment = pd.concat([payment_a, payment_b])
-    orders = pd.concat([orders_a, orders_b])
-    iot = pd.concat([iot_a, iot_b])
+    # payment_b = pd.read_csv(payment_b_path, index_col=None)
+    # orders_b = pd.read_csv(orders_b_path, index_col=None)
+    # iot_b = pd.read_csv(iot_b_path, index_col=None)
+    # payment_b['is_test'] = 1
+
+    payment = payment_a.copy()
+    orders = orders_a.copy()
+    iot = iot_a.copy()
     iot.drop(['latitude', 'longitude'], axis=1, inplace=True)
     iot['SSMONTH'] = iot['reporttime'].map(lambda x: int(x[:4]) * 100 + int(x[4:6]))
     iot['reporttime_min'] = iot.groupby(['device_code', 'SSMONTH'])['reporttime'].transform('min')
@@ -83,6 +84,7 @@ def main(to_pred_dir, result_save_path):
     # df['reporttime_max-reporttime_min'] = df.apply(lambda x: (pd.to_datetime(x['reporttime_max']) - pd.to_datetime(x['reporttime_min'])).days)
     df['reporttime_max-reporttime_min'] = (
             pd.to_datetime(df['reporttime_max']) - pd.to_datetime(df['reporttime_min'])).apply(lambda x: x.days)
+
     df.drop(['reporttime_min', 'posting_date', 'reporttime_max'], axis=1, inplace=True)
     df['DLSBH'] = df['DLSBH'].map(lambda x: int(x[-2:]))
     df['QC/RZQS'] = df['QC'] / df['RZQS']
@@ -172,12 +174,12 @@ def main(to_pred_dir, result_save_path):
 
     # cwd = sys.argv[0]
     # model = lgb.Booster(model_file=os.path.join(cwd[:-6], f'lgb.txt'))
-    y_pred = model.predict(X_test, num_iteration=model.best_iteration)
+    y_pred = model.predict(X_valid, num_iteration=model.best_iteration)
     print('predict Done!')
 
     y_pred = np.where(y_pred >= 0.5, 1, 0)
 
-    __result = test.loc[:, ["SSMONTH", "device_code", "customer_id"]]
+    __result = train_va.loc[:, ["SSMONTH", "device_code", "customer_id"]]
     __result["Y"] = y_pred
     # __result.sort_values(by="SSMONTH",ascending=False,inplace=True)
     result = __result[__result["SSMONTH"] == 201904]

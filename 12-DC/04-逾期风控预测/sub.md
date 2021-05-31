@@ -1,4 +1,4 @@
-python /home/workspace/project/model/run.py  /home/workspace/data/fk_train/ sub.csv
+python /home/workspace/project/model/run_train.py  /home/workspace/data/fk_train/ sub.csv
 
 cd  /home/workspace/project
 
