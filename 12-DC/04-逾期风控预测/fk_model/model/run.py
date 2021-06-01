@@ -39,9 +39,9 @@ def main(to_pred_dir, result_save_path):
     # iot_a_path = os.path.join(sys.path[0], "iot_a.csv")
     # payment_a_path = os.path.join(sys.path[0], "payment_a.csv")
     # orders_a_path = os.path.join(sys.path[0], "orders_a.csv")
-    iot_a_path = train_path + "iot_a.csv"
-    payment_a_path = train_path + "payment_a.csv"
-    orders_a_path = train_path + "orders_a.csv"
+    iot_a_path = train_path + "fk_train/iot_a.csv"
+    payment_a_path = train_path + "fk_train/payment_a.csv"
+    orders_a_path = train_path + "fk_train/orders_a.csv"
 
     payment_a = pd.read_csv(payment_a_path, index_col=None)
     orders_a = pd.read_csv(orders_a_path, index_col=None)
