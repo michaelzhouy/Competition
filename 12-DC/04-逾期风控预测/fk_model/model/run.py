@@ -31,14 +31,7 @@ def main(to_pred_dir, result_save_path):
     iot_b_path = os.path.join(to_pred_dir, "iot_b.csv")
     payment_b_path = os.path.join(to_pred_dir, "payment_b.csv")
     orders_b_path = os.path.join(to_pred_dir, "orders_b.csv")
-    """
-        本示例代码省略模型过程,且假设预测结果全为1
-        选手代码需要自己构建模型,并通过模型预测结果
-    """
     train_path = sys.path[0] + '/'
-    # iot_a_path = os.path.join(sys.path[0], "iot_a.csv")
-    # payment_a_path = os.path.join(sys.path[0], "payment_a.csv")
-    # orders_a_path = os.path.join(sys.path[0], "orders_a.csv")
     iot_a_path = train_path + "fk_train/iot_a.csv"
     payment_a_path = train_path + "fk_train/payment_a.csv"
     orders_a_path = train_path + "fk_train/orders_a.csv"
@@ -55,17 +48,16 @@ def main(to_pred_dir, result_save_path):
     payment_a['is_test'] = 0
     payment_b['is_test'] = 1
 
-    payment = pd.concat([payment_a, payment_b])
-    orders = pd.concat([orders_a, orders_b])
-    iot = pd.concat([iot_a, iot_b])
+    payment = pd.concat([payment_a, payment_b], axis=0, copy=False)
+    orders = pd.concat([orders_a, orders_b], axis=0, copy=False)
+    iot = pd.concat([iot_a, iot_b], axis=0, copy=False)
     iot.drop(['latitude', 'longitude'], axis=1, inplace=True)
-    iot['SSMONTH'] = iot['reporttime'].map(lambda x: int(x[:4]) * 100 + int(x[4:6]))
+    iot['SSMONTH'] = iot['reporttime'].map(lambda x: int(x[:4] + x[5:7]))
     iot['reporttime_min'] = iot.groupby(['device_code', 'SSMONTH'])['reporttime'].transform('min')
     iot['reporttime_max'] = iot.groupby(['device_code', 'SSMONTH'])['reporttime'].transform('max')
     iot_ym = iot.drop_duplicates(subset=["device_code", "SSMONTH", "reporttime_min", "reporttime_max"], keep="first")
     iot_ym.drop('reporttime', axis=1, inplace=True)
     tmp = iot.groupby(['device_code', 'SSMONTH'], as_index=False)['work_sum_time'].agg({
-        'work_sum_time_nunique': 'nunique',
         'work_sum_time_cnt': 'count',
         'work_sum_time_mean': 'mean',
         'work_sum_time_sum': 'sum',
@@ -83,46 +75,45 @@ def main(to_pred_dir, result_save_path):
             pd.to_datetime(df['reporttime_min']) - pd.to_datetime(df['posting_date'])).apply(lambda x: x.days)
     df['reporttime_max-posting_date'] = (
             pd.to_datetime(df['reporttime_max']) - pd.to_datetime(df['posting_date'])).apply(lambda x: x.days)
-    # df['reporttime_max-reporttime_min'] = df.apply(lambda x: (pd.to_datetime(x['reporttime_max']) - pd.to_datetime(x['reporttime_min'])).days)
     df['reporttime_max-reporttime_min'] = (
             pd.to_datetime(df['reporttime_max']) - pd.to_datetime(df['reporttime_min'])).apply(lambda x: x.days)
     df.drop(['reporttime_min', 'posting_date', 'reporttime_max'], axis=1, inplace=True)
     df['DLSBH'] = df['DLSBH'].map(lambda x: int(x[-2:]))
     df['QC/RZQS'] = df['QC'] / df['RZQS']
     df['RZQS-QC'] = df['RZQS'] - df['QC']
-    tmp = df.groupby(['customer_id', 'device_code'], as_index=False)['notified'].agg({
-        'notified_nunique': 'nunique',
-        'notified_cnt': 'count',
-        'notified_mean': 'mean',
-        'notified_sum': 'sum',
-        'notified_min': 'min',
-        'notified_max': 'max',
-        'notified_std': 'std'
-    })
-    df = df.merge(tmp, on=['customer_id', 'device_code'], how='left')
-    # df[''] = df['notified_mean'] / df['work_sum_time_mean']
-
-    tmp = df.groupby('device_code', as_index=False)['notified'].agg({
-        'device_code_notified_nunique': 'nunique',
-        'device_code_notified_cnt': 'count',
-        'device_code_notified_mean': 'mean',
-        'device_code_notified_sum': 'sum',
-        'device_code_notified_min': 'min',
-        'device_code_notified_max': 'max',
-        'device_code_notified_std': 'std'
-    })
-    df = df.merge(tmp, on='device_code', how='left')
-
-    tmp = df.groupby('customer_id', as_index=False)['notified'].agg({
-        'customer_id_notified_nunique': 'nunique',
-        'customer_id_notified_cnt': 'count',
-        'customer_id_notified_mean': 'mean',
-        'customer_id_notified_sum': 'sum',
-        'customer_id_notified_min': 'min',
-        'customer_id_notified_max': 'max',
-        'customer_id_notified_std': 'std'
-    })
-    df = df.merge(tmp, on='customer_id', how='left')
+    # tmp = df.groupby(['customer_id', 'device_code'], as_index=False)['notified'].agg({
+    #     'notified_nunique': 'nunique',
+    #     'notified_cnt': 'count',
+    #     'notified_mean': 'mean',
+    #     'notified_sum': 'sum',
+    #     'notified_min': 'min',
+    #     'notified_max': 'max',
+    #     'notified_std': 'std'
+    # })
+    # df = df.merge(tmp, on=['customer_id', 'device_code'], how='left')
+    # # df[''] = df['notified_mean'] / df['work_sum_time_mean']
+    #
+    # tmp = df.groupby('device_code', as_index=False)['notified'].agg({
+    #     'device_code_notified_nunique': 'nunique',
+    #     'device_code_notified_cnt': 'count',
+    #     'device_code_notified_mean': 'mean',
+    #     'device_code_notified_sum': 'sum',
+    #     'device_code_notified_min': 'min',
+    #     'device_code_notified_max': 'max',
+    #     'device_code_notified_std': 'std'
+    # })
+    # df = df.merge(tmp, on='device_code', how='left')
+    #
+    # tmp = df.groupby('customer_id', as_index=False)['notified'].agg({
+    #     'customer_id_notified_nunique': 'nunique',
+    #     'customer_id_notified_cnt': 'count',
+    #     'customer_id_notified_mean': 'mean',
+    #     'customer_id_notified_sum': 'sum',
+    #     'customer_id_notified_min': 'min',
+    #     'customer_id_notified_max': 'max',
+    #     'customer_id_notified_std': 'std'
+    # })
+    # df = df.merge(tmp, on='customer_id', how='left')
 
     train = df.loc[df['is_test'] == 0, :]
     test = df.loc[df['is_test'] == 1, :]
