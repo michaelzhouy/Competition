@@ -4,6 +4,7 @@ print(sys.path)
 import numpy as np
 import pandas as pd
 import lightgbm as lgb
+from sklearn.metrics import f1_score
 """
 ===========================================================
 # 以上为导入依赖包, 所需的依赖包请在requirements.txt中列明 
@@ -32,9 +33,9 @@ def main(to_pred_dir, result_save_path):
     payment_b_path = os.path.join(to_pred_dir, "payment_b.csv")
     orders_b_path = os.path.join(to_pred_dir, "orders_b.csv")
     train_path = sys.path[0] + '/'
-    iot_a_path = train_path + "fk_train/iot_a.csv"
-    payment_a_path = train_path + "fk_train/payment_a.csv"
-    orders_a_path = train_path + "fk_train/orders_a.csv"
+    iot_a_path = train_path + "iot_a.csv"
+    payment_a_path = train_path + "payment_a.csv"
+    orders_a_path = train_path + "orders_a.csv"
 
     payment_a = pd.read_csv(payment_a_path, index_col=None)
     orders_a = pd.read_csv(orders_a_path, index_col=None)
@@ -77,7 +78,7 @@ def main(to_pred_dir, result_save_path):
             pd.to_datetime(df['reporttime_max']) - pd.to_datetime(df['posting_date'])).apply(lambda x: x.days)
     df['reporttime_max-reporttime_min'] = (
             pd.to_datetime(df['reporttime_max']) - pd.to_datetime(df['reporttime_min'])).apply(lambda x: x.days)
-    df.drop(['reporttime_min', 'posting_date', 'reporttime_max'], axis=1, inplace=True)
+    df.drop(['posting_date', 'reporttime_min', 'reporttime_max'], axis=1, inplace=True)
     df['DLSBH'] = df['DLSBH'].map(lambda x: int(x[-2:]))
     df['QC/RZQS'] = df['QC'] / df['RZQS']
     df['RZQS-QC'] = df['RZQS'] - df['QC']
@@ -117,7 +118,7 @@ def main(to_pred_dir, result_save_path):
 
     train = df.loc[df['is_test'] == 0, :]
     test = df.loc[df['is_test'] == 1, :]
-    cols = [col for col in train.columns if col not in ['device_code', 'customer_id', 'overdue']]
+    cols = [col for col in train.columns if col not in ['device_code', 'customer_id', 'overdue', 'is_test']]
     train_tr = train.loc[train['SSMONTH'] != 201904, :]
     train_va = train.loc[train['SSMONTH'] == 201904, :]
     X_train = train_tr[cols]
