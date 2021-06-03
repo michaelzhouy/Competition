@@ -1,5 +1,5 @@
 # 特征工程
-2. 计算seq
+2. 计算seq(时间序列标记)
 2. 组合：model+adcode，model_adcode_seq，adcode_seq，model_seq
 3. shift特征：根据model_adcode_seq（唯一），对label做shift操作
 4. 分组shift特征：分别对adcode_seq和model_seq做groupby求和，生成一个只有adcode_seq和label之和的两列的DataFrame，最后对该DataFrame对象做shift操作
