@@ -65,8 +65,8 @@ def main(to_pred_dir, result_save_path):
     payment['QC/RZQS'] = payment['QC'] / (payment['RZQS'] + 0.00001)
     payment['RZQS-QC'] = payment['RZQS'] - payment['QC']
 
-    cat_cols = ['device_code', 'customer_id', 'DLSBH', 'SSMONTH', 'RZQS', 'QC']
-    feature = [col for col in payment.columns if col not in ['Y', 'flag', 'overdue']]
+    cat_cols = ['DLSBH', 'SSMONTH', 'RZQS', 'QC']
+    feature = [col for col in payment.columns if col not in ['device_code', 'customer_id', 'Y', 'flag', 'overdue']]
 
     train_total_data = payment[payment['flag'] == 'train']
     x_train = train_total_data[train_total_data['SSMONTH'] != 201904][feature]
@@ -93,6 +93,7 @@ def main(to_pred_dir, result_save_path):
                     early_stopping_rounds=50, categorical_feature=cat_cols)
     vaild_preds = gbm.predict(x_valid, num_iteration=gbm.best_iteration)
     test_preds = gbm.predict(test_data, num_iteration=gbm.best_iteration)
+    test_preds = np.where(test_preds >= 0.5, 1, 0)
 
     xx_score_one = xx_score[xx_score['Y'] == 1].shape[0]
 
@@ -107,8 +108,8 @@ def main(to_pred_dir, result_save_path):
 
     __result['pred'] = test_preds
     __result['rank'] = __result['pred'].rank(ascending=False)
-    __result['Y'] = 0
-    __result.loc[__result['rank'] <= int(__result.shape[0] * 0.2), 'Y'] = 1
+    __result['Y'] = test_preds
+    # __result.loc[__result['rank'] <= int(__result.shape[0] * 0.2), 'Y'] = 1
     result = __result[__result["SSMONTH"] == 201904]
     result.drop_duplicates(subset=["SSMONTH", "device_code", "customer_id"], keep="first", inplace=True)
     result[["SSMONTH", "device_code", "customer_id", "Y"]].to_csv(result_save_path, index=None)
