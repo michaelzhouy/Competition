@@ -93,7 +93,7 @@ def main(to_pred_dir, result_save_path):
                     early_stopping_rounds=50, categorical_feature=cat_cols)
     vaild_preds = gbm.predict(x_valid, num_iteration=gbm.best_iteration)
     test_preds = gbm.predict(test_data, num_iteration=gbm.best_iteration)
-    test_preds = np.where(test_preds >= 0.5, 1, 0)
+    # test_preds = np.where(test_preds >= 0.5, 1, 0)
 
     xx_score_one = xx_score[xx_score['Y'] == 1].shape[0]
 
@@ -108,7 +108,7 @@ def main(to_pred_dir, result_save_path):
 
     __result['pred'] = test_preds
     __result['rank'] = __result['pred'].rank(ascending=False)
-    __result['Y'] = test_preds
+    __result['Y'] = 1
     # __result.loc[__result['rank'] <= int(__result.shape[0] * 0.2), 'Y'] = 1
     result = __result[__result["SSMONTH"] == 201904]
     result.drop_duplicates(subset=["SSMONTH", "device_code", "customer_id"], keep="first", inplace=True)
