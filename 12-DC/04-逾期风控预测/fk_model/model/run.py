@@ -4,6 +4,8 @@ print(sys.path)
 import numpy as np
 import pandas as pd
 import lightgbm as lgb
+import calendar
+import datetime
 from sklearn.metrics import f1_score
 """
 ===========================================================
@@ -39,6 +41,18 @@ def main(to_pred_dir, result_save_path):
     iot_a = pd.read_csv(iot_b_path, index_col=None)
 
     payment_a.sort_values(['customer_id', 'device_code', 'SSMONTH'], ascending=True, inplace=True)
+    payment_a = pd.merge(payment_a, orders_a, on=['device_code', 'customer_id'], how='left')
+
+    payment_a['posting_date'] = payment_a['posting_date'].map(
+        lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date())
+    payment_a['posting_date_month_end'] = payment_a['posting_date'].map(
+        lambda x: datetime.datetime(x.year, x.month, calendar.monthrange(x.year, x.month)[1]).date())
+    payment_a['month_end_diff'] = (payment_a['posting_date_month_end'] - payment_a['posting_date']).map(
+        lambda x: x.days)
+    payment_a['posting_date_weekday'] = payment_a['posting_date'].map(lambda x: x.weekday())
+    # payment_a['posting_date_weekend'] = payment_a['posting_date_weekday'].map(lambda x: 1 if x in [5, 6] else 0)
+
+    payment_a.drop(['posting_date', 'posting_date_month_end'], axis=1, inplace=True)
 
     # payment_a['year'] = payment_a['SSMONTH'].map(lambda x: int(str(x)[:4]))
     payment_a['month'] = payment_a['SSMONTH'].map(lambda x: int(str(x)[4:6]))
@@ -55,30 +69,28 @@ def main(to_pred_dir, result_save_path):
     # payment_a['notified_shift_1'] = payment_a.groupby(['customer_id', 'device_code'])['notified'].shift(1)
     # payment_a['notified_shift_2'] = payment_a.groupby(['customer_id', 'device_code'])['notified'].shift(2)
     # payment_a['notified_2'] = payment_a['notified'] + payment_a['notified_shift_1']
-    payment_a['notified_shift_-1'] = payment_a.groupby(['customer_id', 'device_code'])['notified'].shift(-1)
-    payment_a['notified_shift_-2'] = payment_a.groupby(['customer_id', 'device_code'])['notified'].shift(-2)
+    # payment_a['notified_shift_-1'] = payment_a.groupby(['customer_id', 'device_code'])['notified'].shift(-1)
+    # payment_a['notified_shift_-2'] = payment_a.groupby(['customer_id', 'device_code'])['notified'].shift(-2)
     # fill = {'notified_shift_1': 1, 'notified_shift_2': 1}
     # payment_a.fillna(fill, inplace=True)
 
-    payment_a['customer_id_notified_times'] = payment_a.groupby('customer_id')['notified'].transform('mean')
-    payment_a['device_code_notified_times'] = payment_a.groupby('device_code')['notified'].transform('mean')
-    payment_a['device_code_customer_id_notified_times'] = payment_a.groupby(['device_code', 'customer_id'])[
-        'notified'].transform('mean')
-    payment_a['DLSBH_customer_id_notified_times'] = payment_a.groupby(['DLSBH', 'customer_id'])['notified'].transform(
-        'mean')
-    payment_a['DLSBH_device_code_notified_times'] = payment_a.groupby(['DLSBH', 'device_code'])['notified'].transform(
-        'mean')
+    # payment_a['customer_id_notified_times'] = payment_a.groupby('customer_id')['notified'].transform('mean')
+    # payment_a['device_code_notified_times'] = payment_a.groupby('device_code')['notified'].transform('mean')
+    # payment_a['device_code_customer_id_notified_times'] = payment_a.groupby(['device_code', 'customer_id'])[
+    #     'notified'].transform('mean')
+    # payment_a['DLSBH_customer_id_notified_times'] = payment_a.groupby(['DLSBH', 'customer_id'])['notified'].transform(
+    #     'mean')
+    # payment_a['DLSBH_device_code_notified_times'] = payment_a.groupby(['DLSBH', 'device_code'])['notified'].transform(
+    #     'mean')
 
     X_test = payment_a.drop(['device_code', 'customer_id', 'overdue', 'Y'], axis=1)
 
-    # cwd = sys.argv[0]
-    # model = lgb.Booster(model_file=os.path.join(cwd[:-6], f'lgb.txt'))
     train_path = sys.path[0] + '/'
     model = lgb.Booster(model_file=train_path + 'lgb.txt')
     y_pred = model.predict(X_test, num_iteration=model.best_iteration)
     print('predict Done!')
 
-    y_pred = np.where(y_pred >= 0.5, 1, 0)
+    y_pred = np.where(y_pred >= 0.49, 1, 0)
 
     __result = payment_a.loc[:, ["SSMONTH", "device_code", "customer_id"]]
     __result["Y"] = y_pred
