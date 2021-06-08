@@ -56,7 +56,7 @@ def main(to_pred_dir, result_save_path):
 
     # payment_a['year'] = payment_a['SSMONTH'].map(lambda x: int(str(x)[:4]))
     payment_a['month'] = payment_a['SSMONTH'].map(lambda x: int(str(x)[4:6]))
-    payment_a['month_chunjie'] = payment_a['month'].map(lambda x: 1 if x in [1, 11, 12] else 0)
+    # payment_a['month_chunjie'] = payment_a['month'].map(lambda x: 1 if x in [1, 11, 12] else 0)
 
     payment_a['DLSBH'] = payment_a['DLSBH'].map(lambda x: int(x[-2:]))
 
@@ -65,6 +65,19 @@ def main(to_pred_dir, result_save_path):
 
     payment_a['RZQS-QC'] = payment_a['RZQS'] - payment_a['QC']  # 剩余期次数
     payment_a['QC/RZQS'] = payment_a['QC'] / payment_a['RZQS']  # 当前期次 / 融资期数
+
+    payment_a['customer_id_device_code_nunique'] = payment_a.groupby('customer_id')['device_code'].transform('nunique')
+    # payment_a['device_code_cnt'] = payment_a.groupby('customer_id')['device_code'].transform('count') # 过拟合
+    # payment_a['device_code_customer_id_nunique'] = payment_a.groupby('device_code')['customer_id'].transform('nunique') # 0
+    # payment_a['customer_id_cnt'] = payment_a.groupby('device_code')['customer_id'].transform('count') # 过拟合
+    # payment_a['customer_id_DLSBH_nunique'] = payment_a.groupby('customer_id')['DLSBH'].transform('nunique')
+    payment_a['DLSBH_customer_id_nunique'] = payment_a.groupby('DLSBH')['customer_id'].transform('nunique')
+    payment_a['customer_id_DLSBH_device_code_nunique'] = payment_a.groupby(['customer_id', 'DLSBH'])[
+        'device_code'].transform('nunique')
+    # payment_a['customer_id_DLSBH_count'] = payment_a.groupby(['customer_id', 'DLSBH'])['device_code'].transform('count') # 过拟合
+    # payment_a['customer_id_device_code_DLSBH_nunique'] = payment_a.groupby(['customer_id', 'device_code'])['DLSBH'].transform('nunique') # 只有一个值
+    # payment_a['device_code_DLSBH_nunique'] = payment_a.groupby(['device_code'])['DLSBH'].transform('nunique')
+    # payment_a['device_code_RZQS_nunique'] = payment_a.groupby(['device_code'])['RZQS'].transform('nunique')
 
     # payment_a['notified_shift_1'] = payment_a.groupby(['customer_id', 'device_code'])['notified'].shift(1)
     # payment_a['notified_shift_2'] = payment_a.groupby(['customer_id', 'device_code'])['notified'].shift(2)
