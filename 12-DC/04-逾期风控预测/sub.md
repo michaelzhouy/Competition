@@ -4,6 +4,6 @@ cd  /home/workspace/output
 
 zip -r models.zip model
 
-castlecli --third sany --source /home/workspace/output/models.zip --token 5551f9d836bbd2cdeb864c4cab2b46cc
+castlecli --third sany --source /home/workspace/output/models.zip --token def7221ad81b994458386f2506bb6b96
 
 castlecli --third sany --source /home/workspace/output/models.zip --test "dirpath submit_path"
