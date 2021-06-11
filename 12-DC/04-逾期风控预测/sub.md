@@ -2,7 +2,7 @@ python /home/workspace/project/model/run_train.py  /home/workspace/project/model
 
 cd  /home/workspace/output
 
-zip -r models.zip model
+zip -rf models.zip model
 
 castlecli --third sany --source /home/workspace/output/models.zip --token def7221ad81b994458386f2506bb6b96
 

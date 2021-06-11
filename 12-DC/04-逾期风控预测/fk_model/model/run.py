@@ -43,6 +43,38 @@ def main(to_pred_dir, result_save_path):
     payment_a.sort_values(['customer_id', 'device_code', 'SSMONTH'], ascending=True, inplace=True)
     payment_a = pd.merge(payment_a, orders_a, on=['device_code', 'customer_id'], how='left')
 
+    iot_a['SSMONTH'] = iot_a['reporttime'].map(lambda x: int(x[:4]) * 100 + int(x[5:7]))
+    iot = iot_a.drop_duplicates(subset=['device_code', 'SSMONTH'])[['device_code', 'SSMONTH']]
+
+    tmp = iot_a.groupby(['device_code', 'SSMONTH'], as_index=False)['reporttime'].agg({
+        'reporttime_min': 'min',
+        'reporttime_max': 'max'
+    })
+    iot = pd.merge(iot, tmp, on=['device_code', 'SSMONTH'], how='left')
+
+    tmp = iot_a.groupby(['device_code', 'SSMONTH'], as_index=False)['work_sum_time'].agg({
+        'work_sum_time_cnt': 'count',
+        'work_sum_time_mean': 'mean',
+        'work_sum_time_sum': 'sum',
+        'work_sum_time_min': 'min',
+        'work_sum_time_max': 'max',
+        'work_sum_time_std': 'std'
+    })
+    iot = pd.merge(iot, tmp, on=['device_code', 'SSMONTH'], how='left')
+
+    payment_a = pd.merge(payment_a, iot, on=['device_code', 'SSMONTH'], how='left')
+
+    payment_a['reporttime_min-posting_date'] = (
+            pd.to_datetime(payment_a['reporttime_min']) - pd.to_datetime(payment_a['posting_date'])).apply(
+        lambda x: x.days)
+    payment_a['reporttime_max-posting_date'] = (
+            pd.to_datetime(payment_a['reporttime_max']) - pd.to_datetime(payment_a['posting_date'])).apply(
+        lambda x: x.days)
+    # df['reporttime_max-reporttime_min'] = df.apply(lambda x: (pd.to_datetime(x['reporttime_max']) - pd.to_datetime(x['reporttime_min'])).days)
+    payment_a['reporttime_max-reporttime_min'] = (
+            pd.to_datetime(payment_a['reporttime_max']) - pd.to_datetime(payment_a['reporttime_min'])).apply(
+        lambda x: x.days)
+
     payment_a['posting_date'] = payment_a['posting_date'].map(
         lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date())
     payment_a['posting_date_month_end'] = payment_a['posting_date'].map(
@@ -52,7 +84,7 @@ def main(to_pred_dir, result_save_path):
     payment_a['posting_date_weekday'] = payment_a['posting_date'].map(lambda x: x.weekday())
     # payment_a['posting_date_weekend'] = payment_a['posting_date_weekday'].map(lambda x: 1 if x in [5, 6] else 0)
 
-    payment_a.drop(['posting_date', 'posting_date_month_end'], axis=1, inplace=True)
+    payment_a.drop(['posting_date', 'posting_date_month_end', 'reporttime_min', 'reporttime_max'], axis=1, inplace=True)
 
     # payment_a['year'] = payment_a['SSMONTH'].map(lambda x: int(str(x)[:4]))
     payment_a['month'] = payment_a['SSMONTH'].map(lambda x: int(str(x)[4:6]))
@@ -63,6 +95,7 @@ def main(to_pred_dir, result_save_path):
     payment_a['RZQS'] = payment_a['RZQS'].map(int)
     payment_a['QC'] = payment_a['QC'].map(int)
 
+    payment_a['RZQS=QC'] = np.where(payment_a['RZQS'] == payment_a['QC'], 1, 0)
     payment_a['RZQS-QC'] = payment_a['RZQS'] - payment_a['QC']  # 剩余期次数
     payment_a['QC/RZQS'] = payment_a['QC'] / payment_a['RZQS']  # 当前期次 / 融资期数
 
@@ -72,6 +105,7 @@ def main(to_pred_dir, result_save_path):
     # payment_a['customer_id_cnt'] = payment_a.groupby('device_code')['customer_id'].transform('count') # 过拟合
     # payment_a['customer_id_DLSBH_nunique'] = payment_a.groupby('customer_id')['DLSBH'].transform('nunique')
     payment_a['DLSBH_customer_id_nunique'] = payment_a.groupby('DLSBH')['customer_id'].transform('nunique')
+    payment_a['DLSBH_cnt'] = payment_a.groupby('DLSBH')['customer_id'].transform('count')
     payment_a['customer_id_DLSBH_device_code_nunique'] = payment_a.groupby(['customer_id', 'DLSBH'])[
         'device_code'].transform('nunique')
     # payment_a['customer_id_DLSBH_count'] = payment_a.groupby(['customer_id', 'DLSBH'])['device_code'].transform('count') # 过拟合
