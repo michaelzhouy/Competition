@@ -70,6 +70,7 @@ def lgb_model(X_train, y_train, X_valid=None, y_valid=None, valid_model_path='./
         'first_metric_only': True,
         'is_unbalance': True,
         'max_depth': -1,
+        'verbose': -1,
         'seed': 2020
     }
 
@@ -150,7 +151,8 @@ def auc_select(X_train, y_train, X_valid, y_valid, cols, threshold=0.52):
                 valid_sets=[lgb_valid, lgb_train],
                 num_boost_round=1000,
                 early_stopping_rounds=50,
-                verbose_eval=500
+                verbose_eval=500,
+                verbose=-1,
             )
             print('*' * 10)
             print(lgb_model.best_score['valid_0']['auc'])

@@ -19,5 +19,6 @@ params = {
     'objective': 'regression',
     'metric': 'mae',
     'learning_rate': 0.05,
+    'verbose': -1,
     'seed': 2020
 }
