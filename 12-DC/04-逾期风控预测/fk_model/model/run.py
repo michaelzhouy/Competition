@@ -71,9 +71,9 @@ def main(to_pred_dir, result_save_path):
             pd.to_datetime(payment_a['reporttime_max']) - pd.to_datetime(payment_a['posting_date'])).apply(
         lambda x: x.days)
     # df['reporttime_max-reporttime_min'] = df.apply(lambda x: (pd.to_datetime(x['reporttime_max']) - pd.to_datetime(x['reporttime_min'])).days)
-    payment_a['reporttime_max-reporttime_min'] = (
-            pd.to_datetime(payment_a['reporttime_max']) - pd.to_datetime(payment_a['reporttime_min'])).apply(
-        lambda x: x.days)
+    # payment_a['reporttime_max-reporttime_min'] = (
+    #         pd.to_datetime(payment_a['reporttime_max']) - pd.to_datetime(payment_a['reporttime_min'])).apply(
+    #     lambda x: x.days)
 
     payment_a['posting_date'] = payment_a['posting_date'].map(
         lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date())
@@ -95,7 +95,7 @@ def main(to_pred_dir, result_save_path):
     payment_a['RZQS'] = payment_a['RZQS'].map(int)
     payment_a['QC'] = payment_a['QC'].map(int)
 
-    payment_a['RZQS=QC'] = np.where(payment_a['RZQS'] == payment_a['QC'], 1, 0)
+    # payment_a['RZQS=QC'] = np.where(payment_a['RZQS'] == payment_a['QC'], 1, 0)
     payment_a['RZQS-QC'] = payment_a['RZQS'] - payment_a['QC']  # 剩余期次数
     payment_a['QC/RZQS'] = payment_a['QC'] / payment_a['RZQS']  # 当前期次 / 融资期数
 
@@ -130,7 +130,7 @@ def main(to_pred_dir, result_save_path):
     # payment_a['DLSBH_device_code_notified_times'] = payment_a.groupby(['DLSBH', 'device_code'])['notified'].transform(
     #     'mean')
 
-    X_test = payment_a.drop(['device_code', 'customer_id', 'overdue', 'Y'], axis=1)
+    X_test = payment_a.drop(['device_code', 'customer_id', 'overdue', 'Y', 'DLSBH'], axis=1)
 
     train_path = sys.path[0] + '/'
     model = lgb.Booster(model_file=train_path + 'lgb.txt')
