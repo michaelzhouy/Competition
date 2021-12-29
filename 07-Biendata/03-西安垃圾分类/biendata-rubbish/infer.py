@@ -1,4 +1,3 @@
-
 from re import A
 import torch
 from torch import nn
@@ -23,6 +22,7 @@ from albumentations import (
 )
 from albumentations.pytorch import ToTensorV2
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
 
 def get_inference_transforms(input_size):
     return Compose([
