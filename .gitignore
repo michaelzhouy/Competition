@@ -31,3 +31,4 @@
 *.idea
 *.xlsx
 __init__.py
+*log*
