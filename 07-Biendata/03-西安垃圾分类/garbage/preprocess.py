@@ -1,13 +1,5 @@
 #!usr/bin/env python  
-#-*- coding:utf-8 _*- 
-"""
-@version: python3.6
-@author: QLMX
-@contact: wenruichn@gmail.com
-@time: 2019-08-14 11:16
-公众号：AI成长社
-知乎：https://www.zhihu.com/people/qlmx-61/columns
-"""
+#-*- coding:utf-8 _*-
 from glob import glob
 import os
 import codecs
