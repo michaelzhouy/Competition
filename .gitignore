@@ -30,3 +30,4 @@
 *.feather
 *.idea
 *.xlsx
+__init__.py
